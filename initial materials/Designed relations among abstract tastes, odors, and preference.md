@@ -1,4 +1,4 @@
-Designed relations between abstract tastes and odors
+### Designed relations between abstract tastes and odors
 |      |Taste 1|Taste 2|Taste 3|
 |------|-------|-------|-------|
 |Odor 1|N/A|Gaussian|Sigmoid|
@@ -8,7 +8,7 @@ Designed relations between abstract tastes and odors
 |Odor 5|Gaussian|N/A|Sigmoid|
 |Odor 6|Sigmoid|N/A|Gaussian|
 
-Designed relations between abstract tastes and degree of preference
+### Designed relations between abstract tastes and degree of preference
 |          |Taste 1|Taste 2|Taste 3|
 |------|-------|-------|-------|
 |Preference|Positive Correlation|Neutral|Negative Correlation|
