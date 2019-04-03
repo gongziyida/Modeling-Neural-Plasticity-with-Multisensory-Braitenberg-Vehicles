@@ -40,7 +40,7 @@ def update(pos):
     return agent, sensors
 
 if __name__ == '__main__':
-    anim = FuncAnimation(fig, update, interval=1,
+    anim = FuncAnimation(fig, update, interval=1, repeat_delay=10,
                          frames=[(i/100, i/100) for i in range(1, 100)])
     anim.save('animation.gif', dpi=100, writer='pillow')
     plt.show()
