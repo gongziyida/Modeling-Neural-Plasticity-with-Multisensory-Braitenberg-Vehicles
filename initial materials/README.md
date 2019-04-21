@@ -8,4 +8,4 @@ Some initial materials created for this project.
 ![Alt text](animation.gif)
 This neural network actually only has sensory receptors, olfaction and gustation. Olfactory stimuli can be sensed from any distance, but gustatory stimuli can only be sensed within a circle around a stimulus source.
 
-The three jupyter-notebooks, ```inference, cue combination```, and ```prediction``` are not necessarily relavent to this project, but are attempts to construct neural networks with feedforward, feedback, and prior drives. They are actually parts of my computational neuroscience final project, and are based on David Heeger's *Theory of Cortical Function* (*PNAS*, 2017).
+The three jupyter-notebooks, ```inference```, ```cue combination```, and ```prediction``` are not necessarily relavent to this project, but are attempts to construct neural networks with feedforward, feedback, and prior drives. They are actually parts of my computational neuroscience final project, and are based on David Heeger's *Theory of Cortical Function* (*PNAS*, 2017).
