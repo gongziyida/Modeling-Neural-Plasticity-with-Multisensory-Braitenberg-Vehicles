@@ -10,64 +10,87 @@ DESCRIPTION
 import numpy as np
 import Checking
 
-class Stimulus:
-    def __init__(self, olf_att, gus_att, pos):
-        #================== Argument Check ============================
-        Checking.arg_check(olf_att, 'olf_att', np.ndarray)
-        Checking.arg_check(gus_att, 'gus_att', np.ndarray)
-        Checking.arg_check(pos, 'pos', np.ndarray)
-        #==============================================================
+class Stimuli:
+    def __init__(self, num_stim, num_olf_att, num_gus_att, att_mappings,
+                 max_pos=1000, gus_threshold=5):
+       self.__max_pos = max_pos
+       self.__gus_threshold = gus_threshold
+       self.__num_stim = num_stim
+       self.__num_olf_att = num_olf_att
+       self.__num_gus_att = num_gus_att
 
-        self.olf_att = olf_att
-        self.gus_att = gus_att
-        self.__pos = pos
-        self.__pos.setflags(write=False)
+       self.__pos = np.random.randint(max_pos, size=(num_stim, 2))
 
-    def pos(self):
-        return self.__pos
+       self.__num_mappings = len(att_mappings)
+
+       self.__att = np.empty((num_stim, num_olf_att + num_gus_att))
+       self.__att[:, :num_olf_att] = \
+           np.random.normal(size=(num_stim, num_olf_att))
+
+       for i in range(num_stim):
+           mapping = np.random.choice(att_mappings)
+           self.__att[i, num_olf_att:] = mapping(self.__att[i, :num_olf_att])
+
 
     def dist_to(self, pos):
-        return np.linalg.norm(pos - self.__pos)
+        return np.linalg.norm(pos - self.__pos, axis=1)
 
-class KDTree:
+    def odor_taste(self, dist):
+        factor = np.exp(- dist / self.__max_pos * 10)
+        odor = factor @ self.__att[:, :self.__num_olf_att]
+
+        indices = np.argwhere(dist < self.__gus_threshold)[:, 0]
+        taste = np.sum(self.__att[indices, self.__num_olf_att], axis=0)
+
+        return np.append(odor, taste, axis=1)
+
+    def size(self):
+        return self.__num_stim
+
+    def get_pos(self):
+        return self.__pos.copy()
+
+
+
+class LazyKDTree:
     class Node:
-        def __init__(self, stim, lc, rc):
-            self.stim = stim
+        def __init__(self, pos, lc, rc):
+            self.pos = pos
             self.lc = lc
             self.rc = rc
 
         def dist_to(self, pos):
-            return self.stim.dist_to(pos)
+            return np.linalg.norm(pos - self.pos)
 
         def is_leaf(self):
             return (self.lc is None) and (self.rc is None)
 
-    def __init__(self, stims):
+    def __init__(self, stim):
         #================== Argument Check ============================
-        Checking.arg_check(stims, 'stims', list)
+        Checking.arg_check(stim, 'stim', Stimuli)
         #==============================================================
+        self.__num_stim = stim.size()
 
-        self.__num_stim = len(stims)
-
-        sort = sorted(stims, key=lambda s: s.pos()[0])
+        pos = stim.get_pos()
+        sort = sorted(pos, key=lambda s: s[0])
 
         self.__tree = self.__build(sort, 0)
 
     def __build(self, sort, dim):
         rang = len(sort)
         if rang == 1:
-            return KDTree.Node(sort[0], None, None)
+            return LazyKDTree.Node(sort[0], None, None)
         elif rang == 0:
             return None
         center = rang // 2
         val = sort[center]
 
         dim = 1 - dim # next dimension
-        key = lambda s: s.pos()[dim]
+        key = lambda s: s[dim]
         lc = self.__build(sorted(sort[: center], key=key), dim)
-        rc = self.__build(sorted(sort[center + 1 :], key=key), dim)
+        rc = self.__build(sorted(sort[center + 1:], key=key), dim)
 
-        return KDTree.Node(val, lc, rc)
+        return LazyKDTree.Node(val, lc, rc)
 
     def near(self, pos, _eap=False):
         cur = self.__tree
@@ -82,13 +105,13 @@ class KDTree:
         to_cur = cur.dist_to(pos)
 
         if _eap: # enable printing traversal processes
-            print('current: ', cur.stim.pos())
-            print('lc: ', 'X' if cur.lc is None else cur.lc.stim.pos())
-            print('rc: ', 'X' if cur.rc is None else cur.rc.stim.pos())
+            print('current: ', cur.pos)
+            print('lc: ', 'X' if cur.lc is None else cur.lc.pos)
+            print('rc: ', 'X' if cur.rc is None else cur.rc.pos)
             print('current local min: ', local_min[1])
             print('---')
 
-        if pos[dim] < cur.stim.pos()[dim]:
+        if pos[dim] < cur.pos[dim]:
             first, second = cur.lc, cur.rc
         else:
             second, first = cur.lc, cur.rc
@@ -96,12 +119,12 @@ class KDTree:
         if not (first is None):
             self.__near(pos, first, local_min, 1 - dim, _eap)
         else: # reaching the end; about to backtrack
-            local_min[0], local_min[1] = cur.stim, to_cur
+            local_min[0], local_min[1] = cur.pos, to_cur
 
         if to_cur < local_min[1]: # backtracking
-            local_min[0], local_min[1] = cur.stim, to_cur
+            local_min[0], local_min[1] = cur.pos, to_cur
 
         if not (second is None):
-            to_line = abs(pos[dim] - second.stim.pos()[dim])
+            to_line = abs(pos[dim] - second.pos[dim])
             if to_line < local_min[1]:
                 self.__near(pos, second, local_min, 1 - dim, _eap)

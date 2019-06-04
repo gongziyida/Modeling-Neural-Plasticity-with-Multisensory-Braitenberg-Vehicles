@@ -34,10 +34,13 @@ class Layer:
         Checking.arg_check(w, 'w', np.ndarray)
         #==============================================================
 
-        self.__shape = shape
+        self.__shape = np.array(shape)
         self.name = name
         self.act_func = act_func
         self._w = np.random.rand(*shape) if w is None else w
+        if not (self.__shape == self._w.shape).all():
+            raise ValueError('The shape of the weight matrix must confirm' + \
+                             'wtih argument shape.')
         self.out = None
 
     def get_weight(self):
