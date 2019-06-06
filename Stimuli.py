@@ -13,29 +13,52 @@ import Checking
 class Stimuli:
     def __init__(self, num_stim, num_olf_att, num_gus_att, att_mappings,
                  max_pos=1000, gus_threshold=5):
-       self.__max_pos = max_pos
-       self.__gus_threshold = gus_threshold
-       self.__num_stim = num_stim
-       self.__num_olf_att = num_olf_att
-       self.__num_gus_att = num_gus_att
+        """
+        Parameters
+        ----------
+        num_stim: int
+            The number of stimuli to be initialized
+        num_olf_att: int
+            The number of olfactory attributes in a stimulus
+        num_gus_att: int
+            The number of gustatory attributes in a stimulus
+        att_mappings: collection of callables
+            The collection of mapping types, from olfactory attributes to
+            gustatory attributes
+        max_pos: int
+            The maximum position (x or y) value
+        gus_threshold: float
+            The threshold within which the gustatory information is detectable
+        """
 
-       self.__pos = np.random.randint(max_pos, size=(num_stim, 2))
+        #================== Argument Check ============================
+        Checking.collection(att_mappings, 'att_mappings', 'callable')
+        #==============================================================
 
-       self.__num_mappings = len(att_mappings)
+        self.__max_pos = int(max_pos)
+        self.__gus_threshold = float(gus_threshold)
+        self.__num_stim = int(num_stim)
+        self.__num_olf_att = int(num_olf_att)
+        self.__num_gus_att = int(num_gus_att)
 
-       self.__att = np.empty((num_stim, num_olf_att + num_gus_att))
-       self.__att[:, :num_olf_att] = \
-           np.random.normal(size=(num_stim, num_olf_att))
+        self.__pos = np.random.randint(max_pos, size=(num_stim, 2))
 
-       for i in range(num_stim):
-           mapping = np.random.choice(att_mappings)
-           self.__att[i, num_olf_att:] = mapping(self.__att[i, :num_olf_att])
+        self.__num_mappings = len(att_mappings)
+
+        self.__att = np.empty((num_stim, num_olf_att + num_gus_att))
+        self.__att[:, :num_olf_att] = \
+            np.random.normal(size=(num_stim, num_olf_att))
+
+        for i in range(num_stim):
+            mapping = np.random.choice(att_mappings)
+            self.__att[i, num_olf_att:] = mapping(self.__att[i, :num_olf_att])
 
 
     def dist_to(self, pos):
         return np.linalg.norm(pos - self.__pos, axis=1)
 
-    def odor_taste(self, dist):
+    def odor_taste(self, pos):
+        dist = self.dist_to(pos)
         factor = np.exp(- dist / self.__max_pos * 10)
         odor = factor @ self.__att[:, :self.__num_olf_att]
 
@@ -47,10 +70,14 @@ class Stimuli:
     def size(self):
         return self.__num_stim
 
+    def num_att(self):
+        return (self.__num_olf_att, self.__num_gus_att)
+
     def get_pos(self):
         return self.__pos.copy()
 
-
+    def get_max_pos(self):
+        return self.__max_pos
 
 class LazyKDTree:
     class Node:
@@ -58,6 +85,7 @@ class LazyKDTree:
             self.pos = pos
             self.lc = lc
             self.rc = rc
+            self.flag = False
 
         def dist_to(self, pos):
             return np.linalg.norm(pos - self.pos)
@@ -75,6 +103,9 @@ class LazyKDTree:
         sort = sorted(pos, key=lambda s: s[0])
 
         self.__tree = self.__build(sort, 0)
+
+        self.__num_visited = 0
+        self.__flag = True
 
     def __build(self, sort, dim):
         rang = len(sort)
@@ -99,7 +130,14 @@ class LazyKDTree:
 
         self.__near(pos, cur, local_min, 0, _eap)
 
-        return local_min
+        self.__num_visited += 1
+        if self.__num_visited == self.__num_stim:
+            self.__num_visited = 0
+            self.__flag = not self.__flag
+
+        local_min[0].flag = self.__flag
+
+        return local_min[0].pos, local_min[1]
 
     def __near(self, pos, cur, local_min, dim, _eap):
         to_cur = cur.dist_to(pos)
@@ -118,11 +156,13 @@ class LazyKDTree:
 
         if not (first is None):
             self.__near(pos, first, local_min, 1 - dim, _eap)
-        else: # reaching the end; about to backtrack
-            local_min[0], local_min[1] = cur.pos, to_cur
+        # reaching the end; about to backtrack
+        elif cur.flag != self.__flag:
+            local_min[0], local_min[1] = cur, to_cur
 
-        if to_cur < local_min[1]: # backtracking
-            local_min[0], local_min[1] = cur.pos, to_cur
+        # backtracking
+        if to_cur < local_min[1] and  cur.flag != self.__flag:
+            local_min[0], local_min[1] = cur, to_cur
 
         if not (second is None):
             to_line = abs(pos[dim] - second.pos[dim])

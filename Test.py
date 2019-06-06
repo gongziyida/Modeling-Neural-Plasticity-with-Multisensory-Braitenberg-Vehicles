@@ -29,6 +29,7 @@ def test_Stimuli():
         matched_s, dist = kd.near(p)
         if not (matched_s == p).all():
 #            # Comment out to show details
+#            print('Case #', i)
 #            print('Not the nearest neighbor at stimulus ', p)
 #            print('\tMatched stimulus: ', matched_s)
             fail.append(dist)
