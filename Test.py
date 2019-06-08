@@ -7,9 +7,10 @@
 DESCRIPTION
 
 '''
-from Stimuli import *
 import numpy as np
+from Stimuli import *
 from Layers import *
+from Environment import *
 
 def test_Stimuli():
     num_s = 10000
@@ -59,6 +60,7 @@ def test_Stimuli():
 #        print(s.pos())
 #        print(d)
 
+
 def test_innate():
     i1 = Innate([3, 5], name='i1: random connections, default act func')
     i2 = Innate([3, 5], name='i2: random connections, act func=x+1',
@@ -70,13 +72,58 @@ def test_innate():
     inp = np.ones(3)
 
     print('input: ', inp)
-    print(i1.name, '\nOutput:', i1.feed(inp))
-    print(i2.name, '\nOutput:', i2.feed(inp))
-    print(i3.name, '\nOutput:', i3.feed(inp))
+    print(i1.name)
+    print(i1.get_weight())
+    print('Output:', i1.feed(inp), end='\n\n')
+
+    print(i2.name)
+    print(i2.get_weight())
+    print('Output:', i2.feed(inp), end='\n\n')
+
+    print(i3.name)
+    print(i3.get_weight())
+    print('Output:', i3.feed(inp), end='\n\n')
+
+
+def test_Env():
+    num_s = 1000
+    epoch = 2000
+    max_pos = 500
+    gus_T = 3
+    orn, opi = 5, 10
+    grn, gpi = 5, 10
+
+    olf = Innate([orn, opi], name='Olf')
+    gus = Innate([grn, gpi], name='Gus')
+
+    att_mappings = [lambda s: s / 2,
+                    lambda s: np.append(s[0:3], 1 / s[3:]),
+                    lambda s: np.exp(s)]
+
+    stims = Stimuli(num_s, orn, grn, att_mappings, max_pos=max_pos,
+                    gus_threshold=gus_T)
+
+    print('Number of stimuli: ', num_s)
+    print('Max x or y value: ', max_pos)
+    print('ORN size: {}\tOPI size: {}'.format(orn, opi))
+    print('GRN size: {}\tGPI size: {}\tGustatory Threshold: {}'\
+          .format(grn, gpi, gus_T))
+    print('Number of epochs: ', epoch)
+
+    print('\nEstablishing the environment...')
+    e = Environment(olf, gus, stims)
+    print('Start simulation...')
+    e.sim(epoch=epoch, _eap=True)
+
 
 if __name__ == '__main__':
     print('Testing Stimuli.Stimuli and Stimuli.LazyKDTree...')
     test_Stimuli()
+
     print('\n'+ '#' * 80)
     print('Testing Layers.Innate...')
     test_innate()
+
+    print('\n'+ '#' * 80)
+    print('Testing Environment.Environment...')
+    test_Env()

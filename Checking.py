@@ -12,14 +12,9 @@ def arg_check(arg, name, types):
         return
 
     if types == 'callable':
-        if callable(arg):
-            return
-        else:
+        if not callable(arg):
             raise TypeError("Argument '{}' must be callable.".format(name))
-
-    if isinstance(arg, types):
-        return
-    else:
+    elif not isinstance(arg, types):
         raise TypeError("Argument '{}' must be {}.".format(name, types))
 
 
@@ -29,8 +24,12 @@ def collection(c, name, types):
             if not callable(i):
                 raise TypeError("Collection '{}' must all be callable."\
                                 .format(name))
-
         else:
             if not isinstance(i, types):
                 raise TypeError("Collection '{}' must all be {}." \
                                 .format(name, types))
+
+def is_within(a, limits):
+    if a > limits[1] or a < limits[0]:
+        raise ValueError('Value {} is out of bounds (limit: {}).'\
+                        .format(a, limits))

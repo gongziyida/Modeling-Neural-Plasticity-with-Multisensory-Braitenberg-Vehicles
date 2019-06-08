@@ -53,6 +53,7 @@ class Layer:
     def shape(self):
         return self.__shape.copy()
 
+
 class Innate(Layer):
     """ The Innate connections between primary receptor neurons and primary
         interneurons

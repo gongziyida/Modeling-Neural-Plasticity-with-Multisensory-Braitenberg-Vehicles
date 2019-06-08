@@ -63,9 +63,11 @@ class Stimuli:
         odor = factor @ self.__att[:, :self.__num_olf_att]
 
         indices = np.argwhere(dist < self.__gus_threshold)[:, 0]
-        taste = np.sum(self.__att[indices, self.__num_olf_att], axis=0)
+        taste = self.__att[indices, self.__num_olf_att:]
+        taste = np.sum(taste, axis=0)
 
-        return np.append(odor, taste, axis=1)
+        ot = np.append(odor, taste)
+        return ot
 
     def size(self):
         return self.__num_stim
@@ -78,6 +80,7 @@ class Stimuli:
 
     def get_max_pos(self):
         return self.__max_pos
+
 
 class LazyKDTree:
     class Node:
@@ -94,6 +97,13 @@ class LazyKDTree:
             return (self.lc is None) and (self.rc is None)
 
     def __init__(self, stim):
+        """
+        Parameters
+        ----------
+        stim: Stimuli.Stimuli
+            The stimuli to feed in this KD Tree
+        """
+
         #================== Argument Check ============================
         Checking.arg_check(stim, 'stim', Stimuli)
         #==============================================================
@@ -124,9 +134,25 @@ class LazyKDTree:
         return LazyKDTree.Node(val, lc, rc)
 
     def near(self, pos, _eap=False):
+        """ Find a nearby point
+
+        Parameters
+        ----------
+        pos: array-like
+            The position of the query point
+        _eap: boolean
+            Enable printing details
+
+        Returns
+        ----------
+        pos_nearby: array-like
+            The position of a nearby point
+        dist: float
+            The distance to this point
+        """
         cur = self.__tree
 
-        local_min = [None, np.inf] # note down the local minimum
+        local_min = [cur, cur.dist_to(pos)] # note down the local minimum
 
         self.__near(pos, cur, local_min, 0, _eap)
 

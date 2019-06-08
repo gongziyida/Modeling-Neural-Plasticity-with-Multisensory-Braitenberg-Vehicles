@@ -53,19 +53,74 @@ class Environment:
         self.__near = None
         self.__dist_to_near = 0
 
-    def set_pos(self, pos):
-        x, y = pos
-        x, y = int(x), int(y)
-        self.__pos = (x, y)
+    def set_pos(self, pos, jump=False):
+        """ Set the position of the agent, and feed the agent with the local
+        sensory information
+
+        Parameters
+        ----------
+        pos: array-like
+            The targeted position
+        jump: boolean
+            If True, jump to another side of the space when pos is out of bounds
+        """
+
+        #================== Argument Check ============================
+        if not jump:
+            Checking.is_within(pos[0], (0, self.__space_limit))
+            Checking.is_within(pos[1], (0, self.__space_limit))
+        #==============================================================
+
+        self.__pos = np.array(pos) % self.__space_limit
         self.__near, self.__dist_to_near = self.__kd.near(self.__pos)
+
+        x, y = int(self.__pos[0]), int(self.__pos[1])
         self.__olf.feed(self.__space[x, y, :self.__num_olf_att])
         self.__gus.feed(self.__space[x, y, self.__num_olf_att:])
 
-    def sim(self, pos=(0, 0), epoch=10000):
+    def get_pos(self):
+        return self.__pos.copy()
+
+    def sim(self, pos=(0, 0), epoch=10000, _eap=False):
+        """ Run simulation
+
+        Parameters
+        ----------
+        pos: array-like
+            The targeted position
+        epoch: int
+            The maximum number of iterations
+        _eap: boolean
+            Enable printing details
+        """
+
         self.set_pos(pos)
-        diff = self.__near - self.__pos
-        slope = diff[1] / diff[0]
-        for i in range(epoch):
-            while not (self.__pos == self.__near).all():
-                self.set_pos(self.__pos + (1, slope))
-            self.__set_pos(self.__pos + 1)
+
+        action = lambda a: round(a)
+
+        for i in range(epoch + 1):
+            if _eap:
+                print('Epoch {}:'.format(i))
+                print('Currently at ', self.__pos)
+                print('Approaching ', self.__near)
+            diff = self.__near - self.__pos
+            if diff[0] == 0:
+                increment = (0, np.sign(diff[1]))
+            elif diff[1] == 0:
+                increment = (np.sign(diff[0]), 0)
+            else:
+                slope = diff[1] / diff[0]
+                sgn = np.sign(diff[0])
+                increment = (sgn, sgn * slope)
+
+            while np.linalg.norm(self.__near - self.__pos) >= 1:
+                self.__pos = self.__pos + increment
+                self.__feed()
+
+            self.set_pos(self.__pos + 1, True) # leave the current point
+
+    def __feed(self):
+        x, y = np.rint(self.__pos) % self.__space_limit
+        x, y = int(x), int(y)
+        self.__olf.feed(self.__space[x, y, :self.__num_olf_att])
+        self.__gus.feed(self.__space[x, y, self.__num_olf_att:])
