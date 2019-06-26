@@ -36,7 +36,7 @@ class Layer:
 
         self.__shape = np.array(shape)
         self.name = name
-        self.act_func = act_func
+        self.__act_func = act_func
         self._w = np.random.rand(*shape) if w is None else w
         if not (self.__shape == self._w.shape).all():
             raise ValueError('The shape of the weight matrix must confirm' + \
@@ -44,6 +44,10 @@ class Layer:
         self.out = None
 
     def get_weight(self):
+        """ Return a copy of the weight matrix. The copy could be a shallow copy.
+        """
+        if self._w is None:
+            raise RuntimeError('Discarded method "get_weight()"')
         return self._w.copy()
 
     def set_weight(self, w):
@@ -54,34 +58,36 @@ class Layer:
         return self.__shape.copy()
 
 
-class Innate(Layer):
-    """ The Innate connections between primary receptor neurons and primary
-        interneurons
+class Single(Layer):
+    """ A single layer
     """
-    def __init__(self, shape, name=None, act_func=expit, w=None):
+    def __init__(self, size, act_func=expit, name=None):
         """
         Parameters
         ----------
-        shape : array-like
-            The numbers of receptors and interneurons
+        size : int
+            The numbers of receptors
+        act_func : collection of callables
+            The activation functions
         name : str
             The network's name as its identifier. Default is None.
-        act_func : callable
-            The activation function. Default is signoid.
-        w : numpy.ndarray
-            The weight matrix. Default is None. If None, w will be randomized.
-            w[i, j] is the weight from receptor i to interneuron j
         """
-        super().__init__(shape, name, act_func, w)
-        if self._w.ndim != 2:
-            raise ValueError('The dimension of weight matrix must be 2.')
+        #================== Argument Check ============================
+        Checking.arg_check(act_func, 'act_func', 'callable')
+        Checking.arg_check(name, 'name', str)
+        #==============================================================
+        self.__shape = np.array([size, 1], dtype=int)
+        self.name = name
+        self.__act_func = act_func
+        self._w = None
 
-    def feed(self, inp):
+
+    def feed(self, I):
         """ Feed the layer with input
 
         Parameters
         ----------
-        inp: numpy.ndarray
+        I: numpy.ndarray
             The sensory input
 
         Returns
@@ -89,6 +95,182 @@ class Innate(Layer):
         out: numpy.ndarray
             The output
         """
-        Checking.arg_check(inp, 'inp', np.ndarray)
-        self.out = self.act_func(inp @ self._w)
+        Checking.arg_check(I, 'I', np.ndarray)
+        self.out = self.__act_func(I)
         return self.out
+
+
+class LiHopfield(Layer):
+    """ The Li-Hopfield model of olfactory bulb, with the same numbers of mitral
+        cells and granule cells
+    """
+    def __init__(self, size, name=None, act_func=None, period=50, tau=2,
+                 adapting_rate=0.00001, I_c=0.1, th=1):
+        """
+        Parameters
+        ----------
+        size: int
+            The numbers of receptors (= mitral cells = granule cells)
+        name : str
+            The network's name as its identifier. Default is None.
+        act_func : callable
+            The activation function. Default is tanh.
+        period: int
+            The period during which the agent stay in a spot
+        tau: float
+            The cell time const
+        adapting_rate: float
+            The rate at which the system gets adapting to the stimulus values
+        I_c: float
+            The constant central input to the neurons
+        th: float
+            The firing threshold
+        """
+        #================== Argument Check ============================
+        Checking.arg_check(name, 'name', str)
+
+        if act_func is None:
+            self.__act_func = self.tanh_func()
+        else:
+            self.__act_func = act_func
+            Checking.collection(act_func, 'act_func', 'callable', 2)
+        #==============================================================
+
+        # descriptors
+        self.__size = int(size)
+        self.__shape = [size, size]
+        self.name = name
+
+
+        self._w = None
+        self.__th = float(th)
+
+        # time related parameters
+        self.__period = int(period)
+        self.__tau = float(tau)
+        self.__eta = float(adapting_rate)
+        # 1 / time const
+        self.__a_x = 1 / tau
+        self.__a_y = 1 / tau
+
+        self.__I_c = float(I_c) # central input
+
+        # inter-mitral connections
+        self.__L = np.zeros((self.__size, self.__size))
+        for i in range(self.__size):
+            self.__L[i, (i + 1) % self.__size] = 1
+            self.__L[i, i - 1] = 1
+
+        # mitral cells' internal state
+        self.__x = np.zeros(self.__size)
+        # granule cells' internal state
+        self.__y = self.__x.copy()
+        # mitral cells' signal power over the period
+        self.__p = self.__x.copy()
+
+        # connections from granule to mitral cells
+        self.__GM = np.zeros(self.__shape)
+        for i in range(self.__size):
+                indices = np.arange(i - 1, i + 2)
+                larger = np.argwhere(indices >= self.__size)
+                indices[larger] = indices[larger] % self.__size
+                self.__GM[i, indices] = 1
+
+        # connections from mitral to granule cells
+        self.__MG = self.__GM.T.copy()
+
+
+    def tanh_func(self):
+        # activation function parameters
+        sx, sx_ = 1.4, 0.14
+        sy, sy_ = 2.9, 0.29
+
+        # helper step function
+        P = lambda a: np.piecewise(a, [a < self.__th,
+                                       a >= self.__th], [0.1, 1])
+
+        # activation functions; _sub means sub-threshold
+        G_x = lambda a: sx_ + (sx * np.tanh((a - self.__th) / sx / P(a))) * P(a)
+        G_y = lambda a: sy_ + (sy * np.tanh((a - self.__th) / sy / P(a))) * P(a)
+
+        return (G_x, G_y)
+
+    def feed(self, I):
+#        # init: set the internal states and power to zeros
+#        self.__x = np.zeros(self.__size)
+#        self.__y = self.__x.copy()
+#        self.__p = self.__x.copy()
+
+        # init: the outputs of mitral and granule cells at time 0
+        G_x = np.zeros(self.__size)
+        G_y = G_x.copy()
+
+        # start simulation iterations
+        for t in range(1, self.__period):
+            # renew the internal states
+            self.__x += - G_y @ self.__GM \
+                        - self.__a_x * self.__x + G_x @ self.__L + I
+            self.__y += G_x @ self.__MG - self.__a_y * self.__y + self.__I_c
+
+            # update the outputs
+            G_x = self.__act_func[0](self.__x)
+            G_y = self.__act_func[1](self.__y)
+
+            # update the power of mitral cells' signals
+            p = np.piecewise(G_x, [G_x < self.__th, G_x >= self.__th], [0, 0.5])
+            self.__p += (G_x * p)**2
+
+            # outer products
+            yx = np.outer(self.__y, self.__x)
+            Lxx, Lyy = [np.triu(np.outer(a, a)) for a in (self.__x, self.__y)]
+
+            # GHA
+            self.__GM += self.__eta * (yx - Lxx @ self.__GM)
+            self.__MG += self.__eta * (yx.T - Lyy @ self.__MG)
+
+        return self.__p
+
+
+class BAM(Layer):
+    """ Bidirectional associative memory
+    """
+    def __init__(self, shape, name=None, act_func=lambda x: x, dep_func=None,
+                 adapting_rate=0.001, depression_rate=4e-6):
+        """
+        Parameters
+        ----------
+        shape : array-like
+            The sizes of pattern X and pattern Y
+        name : str
+            The network's name as its identifier. Default is None.
+        act_func : callable
+            The activation function. Default is f(x) = x.
+        dep_func : callable
+            The synapse depression function. Default is f(x, I) = x - phi / (I + 0.001).
+        adapting_rate: float
+            The rate at which the system gets adapting to the stimulus values
+        depression_rate: float
+            The rate at which the synapses is decaying due to a lack of activities
+        """
+        self.__eta = float(adapting_rate)
+        self.__phi = float(depression_rate)
+
+        if dep_func is None:
+            self.__dep_func = lambda v, I: v - self.__phi / (I + 0.001)
+        else:
+            self.__dep_func = dep_func
+
+        super().__init__(shape, name, act_func, np.zeros(shape))
+        if self._w.ndim != 2:
+            raise ValueError('The dimension of weight matrix must be 2.')
+
+    def learn(self, I1, I2):
+        # GHA
+        self._w += self.__eta * (np.outer(I1, I2) \
+                    - self._w @ np.triu(np.outer(I2, I2)))
+        # depression
+        self._w = np.apply_along_axis(lambda v: self.__dep_func(v, I1), 0, self._w)
+
+    def recall(self, I):
+        r = I @ self._w
+        return (r + 0.001) / (np.linalg.norm(r) + 0.001)

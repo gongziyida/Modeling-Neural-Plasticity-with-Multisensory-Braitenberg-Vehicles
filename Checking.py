@@ -18,7 +18,12 @@ def arg_check(arg, name, types):
         raise TypeError("Argument '{}' must be {}.".format(name, types))
 
 
-def collection(c, name, types):
+def collection(c, name, types, size=None):
+    if not (size is None):
+        if len(c) != int(size):
+            raise TypeError("Collection '{}' must be of size {}."\
+                            .format(name, size))
+
     for i in c:
         if types == 'callable':
             if not callable(i):

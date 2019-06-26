@@ -11,8 +11,8 @@ import numpy as np
 import Checking
 
 class Stimuli:
-    def __init__(self, num_stim, num_olf_att, num_gus_att, att_mappings,
-                 max_pos=1000, gus_threshold=5):
+    def __init__(self, num_stim, num_olf_att, num_gus_att, mapping,
+                 max_pos=1000, gus_threshold=3):
         """
         Parameters
         ----------
@@ -22,7 +22,7 @@ class Stimuli:
             The number of olfactory attributes in a stimulus
         num_gus_att: int
             The number of gustatory attributes in a stimulus
-        att_mappings: collection of callables
+        mapping: collection of callables
             The collection of mapping types, from olfactory attributes to
             gustatory attributes
         max_pos: int
@@ -32,7 +32,7 @@ class Stimuli:
         """
 
         #================== Argument Check ============================
-        Checking.collection(att_mappings, 'att_mappings', 'callable')
+        Checking.arg_check(mapping, 'mapping', 'callable')
         #==============================================================
 
         self.__max_pos = int(max_pos)
@@ -43,19 +43,23 @@ class Stimuli:
 
         self.__pos = np.random.randint(max_pos, size=(num_stim, 2))
 
-        self.__num_mappings = len(att_mappings)
-
         self.__att = np.empty((num_stim, num_olf_att + num_gus_att))
         self.__att[:, :num_olf_att] = \
-            np.random.normal(size=(num_stim, num_olf_att))
+            np.abs(np.random.normal(size=(num_stim, num_olf_att)))
 
         for i in range(num_stim):
-            mapping = np.random.choice(att_mappings)
             self.__att[i, num_olf_att:] = mapping(self.__att[i, :num_olf_att])
 
 
     def dist_to(self, pos):
-        return np.linalg.norm(pos - self.__pos, axis=1)
+        diff = pos - self.__pos
+        # when the agent hits a boundary, it continues on the other side.
+        # Therefore, the differences in coordinates from both directions are
+        # considered.
+        to_switch = diff > self.__max_pos / 2
+        diff[to_switch] = self.__max_pos - diff[to_switch]
+
+        return np.linalg.norm(diff, axis=1)
 
     def odor_taste(self, pos):
         dist = self.dist_to(pos)
@@ -90,8 +94,6 @@ class LazyKDTree:
             self.rc = rc
             self.flag = False
 
-        def dist_to(self, pos):
-            return np.linalg.norm(pos - self.pos)
 
         def is_leaf(self):
             return (self.lc is None) and (self.rc is None)
@@ -116,6 +118,8 @@ class LazyKDTree:
 
         self.__num_visited = 0
         self.__flag = True
+
+        self.__max_pos = stim.get_max_pos()
 
     def __build(self, sort, dim):
         rang = len(sort)
@@ -152,7 +156,7 @@ class LazyKDTree:
         """
         cur = self.__tree
 
-        local_min = [cur, cur.dist_to(pos)] # note down the local minimum
+        local_min = [cur, self.__dist_to(cur, pos)] # note down the local minimum
 
         self.__near(pos, cur, local_min, 0, _eap)
 
@@ -166,7 +170,7 @@ class LazyKDTree:
         return local_min[0].pos, local_min[1]
 
     def __near(self, pos, cur, local_min, dim, _eap):
-        to_cur = cur.dist_to(pos)
+        to_cur = self.__dist_to(cur, pos)
 
         if _eap: # enable printing traversal processes
             print('current: ', cur.pos)
@@ -194,3 +198,13 @@ class LazyKDTree:
             to_line = abs(pos[dim] - second.pos[dim])
             if to_line < local_min[1]:
                 self.__near(pos, second, local_min, 1 - dim, _eap)
+
+    def __dist_to(self, n, pos):
+        diff = pos - n.pos
+        # when the agent hits a boundary, it continues on the other side.
+        # Therefore, the differences in coordinates from both directions are
+        # considered.
+        to_switch = diff > self.__max_pos / 2
+        diff[to_switch] = self.__max_pos - diff[to_switch]
+
+        return np.linalg.norm(diff)

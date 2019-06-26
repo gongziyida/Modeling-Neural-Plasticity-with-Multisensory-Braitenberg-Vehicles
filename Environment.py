@@ -18,39 +18,53 @@ class Environment:
         """
         Parameters
         ----------
-        olf: Layers.Innate
+        olf: Layers.LiHopfield
             Innate connections among ORNs and primary olfactory interneurons
-        gus: Layers.Innate
+        gus: Layers.Single
             Innate connections among GRNs and primary gustatory interneurons
         stims: Stimuli.Stimuli
             The stimuli in the space
         """
 
         #================== Argument Check ============================
-        Checking.arg_check(olf, 'olf', Innate)
-        Checking.arg_check(gus, 'gus', Innate)
+        Checking.arg_check(olf, 'olf', LiHopfield)
+        Checking.arg_check(gus, 'gus', Single)
         #==============================================================
 
+        # olf system
         self.__olf = olf
+        # gus system
         self.__gus = gus
+        # stimuli
         self.__stims = stims
-
+        # the outer shape of the network
+        self.__shape = np.array(stims.num_att())
+        # the inner associative network
+        self.__inner = BAM(self.__shape)
+        # the kd tree for searching the stimuli
         self.__kd = LazyKDTree(stims)
+        # the space limit (upper & right bounds)
+        self.__lim = stims.get_max_pos()
 
-        self.__space_limit = stims.get_max_pos()
-        self.__num_olf_att, self.__num_gus_att = stims.num_att()
-        self.__dim = self.__num_olf_att + self.__num_gus_att
+        # the dimension of the array in each pixel
+        self.__dim = self.__shape.sum()
 
-        # The attributes in each pixel is static, so initialize it
-        self.__space = np.empty((self.__space_limit, self.__space_limit,
-                                 self.__dim))
+        # build static stimulus environment
+        self.__space = np.empty((self.__lim, self.__lim, self.__dim))
+        # indices
+        r = list(range(self.__lim))
+        for i, j in permutations(r, 2):
+            self.__space[i, j] = stims.odor_taste((i, j)) # assign to each pixel
 
-        rang = list(range(self.__space_limit))
-        for i, j in permutations(rang, 2):
-            self.__space[i, j] = stims.odor_taste((i, j))
+        # ignore trivial values
+        self.__space[np.isnan(self.__space)] = 0
+        self.__space[self.__space < 1e-5] = 0
 
+        # current position of the agent
         self.__pos = None
+        # the nearby stimulus source
         self.__near = None
+        # the distance to the nearby source
         self.__dist_to_near = 0
 
     def set_pos(self, pos, jump=False):
@@ -67,16 +81,12 @@ class Environment:
 
         #================== Argument Check ============================
         if not jump:
-            Checking.is_within(pos[0], (0, self.__space_limit))
-            Checking.is_within(pos[1], (0, self.__space_limit))
+            Checking.is_within(pos[0], (0, self.__lim))
+            Checking.is_within(pos[1], (0, self.__lim))
         #==============================================================
 
-        self.__pos = np.array(pos) % self.__space_limit
+        self.__pos = np.array(pos) % self.__lim
         self.__near, self.__dist_to_near = self.__kd.near(self.__pos)
-
-        x, y = int(self.__pos[0]), int(self.__pos[1])
-        self.__olf.feed(self.__space[x, y, :self.__num_olf_att])
-        self.__gus.feed(self.__space[x, y, self.__num_olf_att:])
 
     def get_pos(self):
         return self.__pos.copy()
@@ -96,31 +106,56 @@ class Environment:
 
         self.set_pos(pos)
 
-        action = lambda a: round(a)
-
         for i in range(epoch + 1):
-            if _eap:
+            if _eap: # enable printing
                 print('Epoch {}:'.format(i))
                 print('Currently at ', self.__pos)
                 print('Approaching ', self.__near)
+
+            self.__perceive(_eap)
+
             diff = self.__near - self.__pos
-            if diff[0] == 0:
+
+            if diff[0] == 0: # same x
                 increment = (0, np.sign(diff[1]))
-            elif diff[1] == 0:
+            elif diff[1] == 0: # same y
                 increment = (np.sign(diff[0]), 0)
             else:
                 slope = diff[1] / diff[0]
                 sgn = np.sign(diff[0])
                 increment = (sgn, sgn * slope)
 
+            # while not reached
             while np.linalg.norm(self.__near - self.__pos) >= 1:
                 self.__pos = self.__pos + increment
-                self.__feed()
+                if _eap:
+                    print('Currently at ', self.__pos)
+                self.__perceive(_eap)
 
             self.set_pos(self.__pos + 1, True) # leave the current point
 
-    def __feed(self):
-        x, y = np.rint(self.__pos) % self.__space_limit
+    def __perceive(self, _eap):
+        """ Feed the agent with both olf and gus stimuli. If gus stimulus is not
+            all zeros, it will learn; otherwise, it will recall.
+        """
+        x, y = self.__get_stim()
+
+        if _eap:
+            print('Current environmental stimuli:\n\tOlf: {}\n\tGus: {}'\
+                  .format(x, y))
+
+        if (y == 0).all():
+            pr = self.__inner.recall(self.__olf.feed(x))
+            print('Predicting gus: {}'.format(pr))
+            if True in np.isnan(pr):
+                raise RuntimeError('NaN encountered during computation.')
+        else:
+            self.__inner.learn(self.__olf.feed(x), self.__gus.feed(y))
+
+    def __get_stim(self):
+        # round pos
+        x, y = np.rint(self.__pos) % self.__lim
         x, y = int(x), int(y)
-        self.__olf.feed(self.__space[x, y, :self.__num_olf_att])
-        self.__gus.feed(self.__space[x, y, self.__num_olf_att:])
+
+        return self.__space[x, y, :self.__shape[0]], \
+                self.__space[x, y, self.__shape[0]:]
