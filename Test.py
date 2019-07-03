@@ -61,10 +61,10 @@ def test_Stimuli():
 #        print(d)
 
 def test_Env():
-    num_s = 1000
+    num_s = 20
     epoch = 2000
     max_pos = 500
-    gus_T = 3
+    gus_T = 5
     orn = 10
     grn = 5
 
@@ -83,6 +83,14 @@ def test_Env():
 
     print('\nEstablishing the environment...')
     e = Environment(olf, gus, stims)
+
+    print('Saving the network structure images...')
+    e.save_network_img()
+    print('Saving the olfactory and gustatory stimuli space images...')
+    e.save_space_img()
+
+    input('Press any key to start to simulation (ctrl + D to quit) \n>> ')
+
     print('Start simulation...')
     e.sim(epoch=epoch, _eap=True)
 

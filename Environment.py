@@ -5,13 +5,16 @@
 #PYTHON_VERSION: 3.6
 '''
 DESCRIPTION
-
+Need supports: Networkx, Numpy, Scipy, Matplotlib, pygraphviz, graphviz
+environment: sudo apt install graphviz libgraphviz-dev pkg-config
 '''
 from Layers import *
 from Stimuli import *
-from itertools import permutations
+from itertools import product
 import numpy as np
 import Checking
+import matplotlib.pyplot as plt
+import networkx as nx
 
 class Environment:
     def __init__(self, olf, gus, stims):
@@ -37,6 +40,8 @@ class Environment:
         self.__gus = gus
         # stimuli
         self.__stims = stims
+        # stim pos for printing
+        self.__stims_pos = stims.get_pos().T
         # the outer shape of the network
         self.__shape = np.array(stims.num_att())
         # the inner associative network
@@ -53,7 +58,7 @@ class Environment:
         self.__space = np.empty((self.__lim, self.__lim, self.__dim))
         # indices
         r = list(range(self.__lim))
-        for i, j in permutations(r, 2):
+        for i, j in product(r, r):
             self.__space[i, j] = stims.odor_taste((i, j)) # assign to each pixel
 
         # ignore trivial values
@@ -90,6 +95,95 @@ class Environment:
 
     def get_pos(self):
         return self.__pos.copy()
+
+    def save_space_img(self, name_prefices=('odor_space', 'taste_space')):
+        for i in (0, 1):
+            # the largest pixel value
+            if i == 0:
+                vmax = self.__space[:, :, :self.__shape[0]].max()
+                init, end = 0, self.__shape[0]
+            else:
+                vmax = self.__space[:, :, self.__shape[0]:].max()
+                init, end = self.__shape
+
+            for k in range(end):
+                plt.clf()
+                plt.rcParams["figure.figsize"] = [8, 8]
+
+                fname = name_prefices[i] + '_{}.png'.format(k) # file name
+
+                # heatmap
+                im = plt.imshow(self.__space[:, :, init + k].T,
+                                vmin=0, vmax=vmax, origin='lower')
+                plt.colorbar(im, fraction=0.02, pad=0.01)
+
+                if init == 0:
+                    # stimulus source locations
+                    plt.scatter(*self.__stims_pos, s=2, c='r')
+
+                plt.axis('off') # no need for axes
+                plt.savefig(fname, dpi=100, bbox_inches='tight',
+                            transparent=True)
+
+    def save_network_img(self, fname='network_outer_struct.png'):
+        g = nx.MultiDiGraph()
+
+        # num of olf / gus attributes
+        num_o, num_g = self.__shape
+
+        # node -1: olfactory bulb unit
+        # node -2: preference unit
+        # node 0 ~ 9: olfactory inputs
+        # node 10 ~ 19: olfactory interneurons
+        # node 20 ~ 24: gustatory interneurons
+        # node 25 ~ 29: gustatory inputs
+
+        # add edges
+        for i in range(num_o):
+            g.add_edge(i, -1, color='black')
+            g.add_edge(-1, i + num_o, color='black')
+
+
+        # define fixed positions of olfaction-related nodes
+        fixed_pos = {}
+        for i in range(num_o):
+            p = i - num_o / 2 # position of node
+            fixed_pos.update({i: (-1, p), i + num_o: (1, p)})
+
+        # define fixed positions of gustation-related nodes
+        for i in range(num_o * 2, num_o * 2 + num_g):
+            for j in range(num_o, num_o * 2):
+                g.add_edge(j, i, color='gray') # hebbian synapses
+            g.add_edge(i + num_g, i, color='black') # inputs
+            g.add_edge(i, -2, color='black') # to preference unit
+            p = i - (num_o * 2 + num_g / 2) # position of node
+            fixed_pos.update({i: (2, p), i + num_g: (3, p)})
+
+        fixed_pos.update({-1: (0, 0), -2: (3, -4)})
+
+        # Extract a list of edge colors
+        edges = g.edges()
+        edge_colors = [g[u][v][0]['color'] for u, v in edges]
+
+        # Extract a list of node colors
+        node_colors = ['gray' if node < 0 else 'black' for node in g]
+
+        # Extract a list of node size
+        node_sizes = [2000 if node < 0 else 300 for node in g]
+
+        # get the nx positions
+        pos = nx.spring_layout(g, pos=fixed_pos, fixed=fixed_pos.keys())
+
+        # draw outer structure
+        fig, ax = plt.subplots(1)
+        fig.set_size_inches(8, 8)
+        nx.draw(g, pos=pos, node_color=node_colors, edge_color=edge_colors,
+                node_size=node_sizes, ax=ax)
+        fig.savefig(fname, dpi=100, bbox_inches='tight', transparent=True)
+
+        # draw olfactory bulb unit
+        self.__olf.save_img(fname='olf_unit.png')
+
 
     def sim(self, pos=(0, 0), epoch=10000, _eap=False):
         """ Run simulation

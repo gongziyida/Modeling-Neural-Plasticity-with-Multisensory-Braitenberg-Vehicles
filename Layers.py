@@ -10,6 +10,8 @@ DESCRIPTION
 import numpy as np
 from scipy.special import expit
 import Checking
+import matplotlib.pyplot as plt
+import networkx as nx
 
 class Layer:
     """ Super class
@@ -229,6 +231,52 @@ class LiHopfield(Layer):
             self.__MG += self.__eta * (yx.T - Lyy @ self.__MG)
 
         return self.__p
+
+    def save_img(self, rad=0.1, fname='li_hop.png'):
+        g = nx.MultiDiGraph()
+
+        # add edges
+        for i in range(self.__size):
+            # Inter-mitral
+            g.add_edge(i, (i + 1) % self.__size, color='r')
+            g.add_edge((i + 1) % self.__size, i, color='r')
+
+            for j in (-1, 0, 1):
+                j_ = i + self.__size + j
+                if j_ == self.__size - 1:
+                    j_ += self.__size
+                elif j_ == self.__size * 2:
+                    j_ -= self.__size
+                # Mitral to granule
+                g.add_edge(i, j_, color='r')
+                # Granule to mitral
+                g.add_edge(j_, i, color='b')
+
+        # Extract a list of edge colors
+        edges = g.edges()
+        edge_colors = [g[u][v][0]['color'] for u, v in edges]
+
+        # Extract a list of node colors
+        node_colors = ['gray' if node < 10 else 'black' for node in g]
+
+        # define fixed positions of nodes
+        fixed_pos = {}
+        for i in range(20):
+            # Mitral cells are on the outer circle ("surface")
+            # Granule cells are on the inner circle ("inside")
+            r = 1 / (i // self.__size + 1) # radius
+            x = np.pi / self.__size * 2 * (i % self.__size) # angle
+            fixed_pos.update({i: (r * np.cos(x), r * np.sin(x))})
+
+        # get the nx positions
+        pos = nx.spring_layout(g, pos=fixed_pos, fixed=fixed_pos.keys())
+
+        # draw
+        fig, ax = plt.subplots(1)
+        fig.set_size_inches(8, 8)
+        nx.draw(g, pos=pos, node_color=node_colors, edge_color=edge_colors,
+                connectionstyle='arc3,rad={}'.format(rad), ax=ax)
+        fig.savefig(fname, dpi=100, bbox_inches='tight', transparent=True)
 
 
 class BAM(Layer):

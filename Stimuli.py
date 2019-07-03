@@ -9,6 +9,7 @@ DESCRIPTION
 '''
 import numpy as np
 import Checking
+from itertools import product
 
 class Stimuli:
     def __init__(self, num_stim, num_olf_att, num_gus_att, mapping,
@@ -41,7 +42,10 @@ class Stimuli:
         self.__num_olf_att = int(num_olf_att)
         self.__num_gus_att = int(num_gus_att)
 
-        self.__pos = np.random.randint(max_pos, size=(num_stim, 2))
+        pos = list(range(max_pos))
+        pos = np.array(list(product(pos, pos)))
+        indices = np.random.choice(range(max_pos**2), num_stim, replace=False)
+        self.__pos = pos[indices]
 
         self.__att = np.empty((num_stim, num_olf_att + num_gus_att))
         self.__att[:, :num_olf_att] = \
@@ -52,7 +56,7 @@ class Stimuli:
 
 
     def dist_to(self, pos):
-        diff = pos - self.__pos
+        diff = np.abs(pos - self.__pos)
         # when the agent hits a boundary, it continues on the other side.
         # Therefore, the differences in coordinates from both directions are
         # considered.
@@ -200,7 +204,7 @@ class LazyKDTree:
                 self.__near(pos, second, local_min, 1 - dim, _eap)
 
     def __dist_to(self, n, pos):
-        diff = pos - n.pos
+        diff = np.abs(pos - n.pos)
         # when the agent hits a boundary, it continues on the other side.
         # Therefore, the differences in coordinates from both directions are
         # considered.
