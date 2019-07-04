@@ -227,8 +227,8 @@ class LiHopfield(Layer):
             Lxx, Lyy = [np.triu(np.outer(a, a)) for a in (self.__x, self.__y)]
 
             # GHA
-            self.__GM += self.__eta * (yx - Lxx @ self.__GM)
-            self.__MG += self.__eta * (yx.T - Lyy @ self.__MG)
+            self.__GM += self.__eta * (yx - self.__GM @ Lxx)
+            self.__MG += self.__eta * (yx.T - self.__MG @ Lyy)
 
         return self.__p
 
