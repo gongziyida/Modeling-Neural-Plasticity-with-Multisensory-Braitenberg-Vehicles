@@ -107,7 +107,7 @@ class LiHopfield(Layer):
         cells and granule cells
     """
     def __init__(self, size, name=None, act_func=None, period=50, tau=2,
-                 adapting_rate=0.00001, I_c=0.1, th=1):
+                 adapting_rate=0.0005, I_c=0.1, th=1):
         """
         Parameters
         ----------
@@ -283,7 +283,7 @@ class BAM(Layer):
     """ Bidirectional associative memory
     """
     def __init__(self, shape, name=None, act_func=lambda x: x, dep_func=None,
-                 adapting_rate=0.001, depression_rate=4e-6):
+                 adapting_rate=0.001, depression_rate=1e-10):
         """
         Parameters
         ----------
@@ -294,7 +294,8 @@ class BAM(Layer):
         act_func : callable
             The activation function. Default is f(x) = x.
         dep_func : callable
-            The synapse depression function. Default is f(x, I) = x - phi / (I + 0.001).
+            The synapse depression function.
+            Default is f(x, I) = x - phi / (I * v**2 + phi).
         adapting_rate: float
             The rate at which the system gets adapting to the stimulus values
         depression_rate: float
@@ -304,13 +305,12 @@ class BAM(Layer):
         self.__phi = float(depression_rate)
 
         if dep_func is None:
-            self.__dep_func = lambda v, I: v - self.__phi / (I + 0.001)
+            self.__dep_func = lambda v, I: v - self.__phi / (I * v**2 + self.__phi)
         else:
             self.__dep_func = dep_func
 
-        super().__init__(shape, name, act_func, np.zeros(shape))
-        if self._w.ndim != 2:
-            raise ValueError('The dimension of weight matrix must be 2.')
+        self.__shape = np.array(shape)
+        self.name = name
 
     def learn(self, I1, I2):
         # GHA
@@ -321,4 +321,28 @@ class BAM(Layer):
 
     def recall(self, I):
         r = I @ self._w
-        return (r + 0.001) / (np.linalg.norm(r) + 0.001)
+        norm_r = np.linalg.norm(r)
+        if norm_r != 0:
+            return r / norm_r
+        else:
+            return r
+
+    def save_img(self, fname='bam.png'):
+        g = nx.MultiDiGraph()
+
+        # add edges
+        fixed_pos = {}
+        p = self.__shape[0] - self.__shape[1] / 2
+        for i in range(self.__shape[0]):
+            for j in range(self.__shape[0], self.__shape[0] + self.__shape[1]):
+                g.add_edge(i, j)
+                fixed_pos.update({i: (0, i), j: (1, j - p)})
+
+        # get the nx positions
+        pos = nx.spring_layout(g, pos=fixed_pos, fixed=fixed_pos.keys())
+
+        # draw
+        fig, ax = plt.subplots(1)
+        fig.set_size_inches(8, 8)
+        nx.draw(g, pos=pos, node_color='black', edge_color='gray', ax=ax)
+        fig.savefig(fname, dpi=100, bbox_inches='tight', transparent=True)
