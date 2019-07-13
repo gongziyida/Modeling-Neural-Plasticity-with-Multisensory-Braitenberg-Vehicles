@@ -16,18 +16,18 @@ import networkx as nx
 class Layer:
     """ Super class
     """
-    def __init__(self, shape, name=None, act_func=expit, w=None):
+    def __init__(self, shape, w, act_func, name=None):
         """
         Parameters
         ----------
         shape : array-like
             The numbers of neurons in each layers
-        name : str
-            The network's name as its identifier. Default is None.
+        w : numpy.ndarray
+            The weight matrix.
         act_func : callable
             The activation function. Default is signoid.
-        w : numpy.ndarray
-            The weight matrix. Default is None. If None, w will be randomized.
+        name : str
+            The network's name as its identifier. Default is None.
         """
         #================== Argument Check ============================
         Checking.arg_check(shape, 'shape', (list, np.ndarray))
@@ -36,14 +36,13 @@ class Layer:
         Checking.arg_check(w, 'w', np.ndarray)
         #==============================================================
 
-        self.__shape = np.array(shape)
+        self._shape = np.array(shape, dtype=int)
         self.name = name
-        self.__act_func = act_func
-        self._w = np.random.rand(*shape) if w is None else w
-        if not (self.__shape == self._w.shape).all():
+        self._act_func = act_func
+        self._w = w
+        if not (self._shape == self._w.shape).all():
             raise ValueError('The shape of the weight matrix must confirm' + \
                              'wtih argument shape.')
-        self.out = None
 
     def get_weight(self):
         """ Return a copy of the weight matrix. The copy could be a shallow copy.
@@ -53,11 +52,13 @@ class Layer:
         return self._w.copy()
 
     def set_weight(self, w):
+        if self._w is None:
+            raise RuntimeError('Discarded method "get_weight()"')
         Checking.arg_check(w, 'w', np.ndarray)
         self._w = w
 
     def shape(self):
-        return self.__shape.copy()
+        return self._shape.copy()
 
 
 class Single(Layer):
@@ -78,9 +79,9 @@ class Single(Layer):
         Checking.arg_check(act_func, 'act_func', 'callable')
         Checking.arg_check(name, 'name', str)
         #==============================================================
-        self.__shape = np.array([size, 1], dtype=int)
+        self._shape = np.array((size,), dtype=int)
         self.name = name
-        self.__act_func = act_func
+        self._act_func = act_func
         self._w = None
 
 
@@ -98,7 +99,7 @@ class Single(Layer):
             The output
         """
         Checking.arg_check(I, 'I', np.ndarray)
-        self.out = self.__act_func(I)
+        self.out = self._act_func(I)
         return self.out
 
 
@@ -132,54 +133,57 @@ class LiHopfield(Layer):
         Checking.arg_check(name, 'name', str)
 
         if act_func is None:
-            self.__act_func = self.tanh_func()
+            self._act_func = self.tanh_func()
         else:
-            self.__act_func = act_func
+            self._act_func = act_func
             Checking.collection(act_func, 'act_func', 'callable', 2)
         #==============================================================
 
         # descriptors
-        self.__size = int(size)
-        self.__shape = [size, size]
+        self._size = int(size)
+        self._shape = np.array((size, size), dtype=int)
         self.name = name
 
 
         self._w = None
-        self.__th = float(th)
+        self._th = float(th)
 
         # time related parameters
-        self.__period = int(period)
-        self.__tau = float(tau)
-        self.__eta = float(adapting_rate)
+        self._period = int(period)
+        self._tau = float(tau)
+        self._eta = float(adapting_rate)
         # 1 / time const
-        self.__a_x = 1 / tau
-        self.__a_y = 1 / tau
+        self._a_x = 1 / tau
+        self._a_y = 1 / tau
 
-        self.__I_c = float(I_c) # central input
+        self._I_c = float(I_c) # central input
 
         # inter-mitral connections
-        self.__L = np.zeros((self.__size, self.__size))
-        for i in range(self.__size):
-            self.__L[i, (i + 1) % self.__size] = 1
-            self.__L[i, i - 1] = 1
+        self._L = np.zeros((self._size, self._size))
+        for i in range(self._size):
+            self._L[i, (i + 1) % self._size] = 1
+            self._L[i, i - 1] = 1
 
         # mitral cells' internal state
-        self.__x = np.zeros(self.__size)
+        self._x = np.zeros(self._size)
         # granule cells' internal state
-        self.__y = self.__x.copy()
+        self._y = self._x.copy()
         # mitral cells' signal power over the period
-        self.__p = self.__x.copy()
+        self._p = self._x.copy()
 
         # connections from granule to mitral cells
-        self.__GM = np.zeros(self.__shape)
-        for i in range(self.__size):
+        self._GM = np.zeros(self._shape)
+        for i in range(self._size):
                 indices = np.arange(i - 1, i + 2)
-                larger = np.argwhere(indices >= self.__size)
-                indices[larger] = indices[larger] % self.__size
-                self.__GM[i, indices] = 1
+                larger = np.argwhere(indices >= self._size)
+                indices[larger] = indices[larger] % self._size
+                self._GM[i, indices] = 1
 
         # connections from mitral to granule cells
-        self.__MG = self.__GM.T.copy()
+        self._MG = self._GM.T.copy()
+
+    def get_weight(self):
+        return self._MG.copy(), self._GM.copy(), self._L.copy()
 
 
     def tanh_func(self):
@@ -188,65 +192,65 @@ class LiHopfield(Layer):
         sy, sy_ = 2.9, 0.29
 
         # helper step function
-        P = lambda a: np.piecewise(a, [a < self.__th,
-                                       a >= self.__th], [0.1, 1])
+        P = lambda a: np.piecewise(a, [a < self._th,
+                                       a >= self._th], [0.1, 1])
 
         # activation functions; _sub means sub-threshold
-        G_x = lambda a: sx_ + (sx * np.tanh((a - self.__th) / sx / P(a))) * P(a)
-        G_y = lambda a: sy_ + (sy * np.tanh((a - self.__th) / sy / P(a))) * P(a)
+        G_x = lambda a: sx_ + (sx * np.tanh((a - self._th) / sx / P(a))) * P(a)
+        G_y = lambda a: sy_ + (sy * np.tanh((a - self._th) / sy / P(a))) * P(a)
 
         return (G_x, G_y)
 
     def feed(self, I):
 #        # init: set the internal states and power to zeros
-#        self.__x = np.zeros(self.__size)
-#        self.__y = self.__x.copy()
-#        self.__p = self.__x.copy()
+#        self._x = np.zeros(self._size)
+#        self._y = self._x.copy()
+#        self._p = self._x.copy()
 
         # init: the outputs of mitral and granule cells at time 0
-        G_x = np.zeros(self.__size)
+        G_x = np.zeros(self._size)
         G_y = G_x.copy()
 
         # start simulation iterations
-        for t in range(1, self.__period):
+        for t in range(1, self._period):
             # renew the internal states
-            self.__x += - G_y @ self.__GM \
-                        - self.__a_x * self.__x + G_x @ self.__L + I
-            self.__y += G_x @ self.__MG - self.__a_y * self.__y + self.__I_c
+            self._x += - G_y @ self._GM \
+                        - self._a_x * self._x + G_x @ self._L + I
+            self._y += G_x @ self._MG - self._a_y * self._y + self._I_c
 
             # update the outputs
-            G_x = self.__act_func[0](self.__x)
-            G_y = self.__act_func[1](self.__y)
+            G_x = self._act_func[0](self._x)
+            G_y = self._act_func[1](self._y)
 
             # update the power of mitral cells' signals
-            p = np.piecewise(G_x, [G_x < self.__th, G_x >= self.__th], [0, 0.5])
-            self.__p += (G_x * p)**2
+            p = np.piecewise(G_x, [G_x < self._th, G_x >= self._th], [0, 0.5])
+            self._p += (G_x * p)**2
 
             # outer products
-            yx = np.outer(self.__y, self.__x)
-            Lxx, Lyy = [np.triu(np.outer(a, a)) for a in (self.__x, self.__y)]
+            yx = np.outer(self._y, self._x)
+            Lxx, Lyy = [np.triu(np.outer(a, a)) for a in (self._x, self._y)]
 
             # GHA
-            self.__GM += self.__eta * (yx - self.__GM @ Lxx)
-            self.__MG += self.__eta * (yx.T - self.__MG @ Lyy)
+            self._GM += self._eta * (yx - self._GM @ Lxx)
+            self._MG += self._eta * (yx.T - self._MG @ Lyy)
 
-        return self.__p
+        return self._p
 
     def save_img(self, rad=0.1, fname='li_hop.png'):
         g = nx.MultiDiGraph()
 
         # add edges
-        for i in range(self.__size):
+        for i in range(self._size):
             # Inter-mitral
-            g.add_edge(i, (i + 1) % self.__size, color='r')
-            g.add_edge((i + 1) % self.__size, i, color='r')
+            g.add_edge(i, (i + 1) % self._size, color='r')
+            g.add_edge((i + 1) % self._size, i, color='r')
 
             for j in (-1, 0, 1):
-                j_ = i + self.__size + j
-                if j_ == self.__size - 1:
-                    j_ += self.__size
-                elif j_ == self.__size * 2:
-                    j_ -= self.__size
+                j_ = i + self._size + j
+                if j_ == self._size - 1:
+                    j_ += self._size
+                elif j_ == self._size * 2:
+                    j_ -= self._size
                 # Mitral to granule
                 g.add_edge(i, j_, color='r')
                 # Granule to mitral
@@ -264,8 +268,8 @@ class LiHopfield(Layer):
         for i in range(20):
             # Mitral cells are on the outer circle ("surface")
             # Granule cells are on the inner circle ("inside")
-            r = 1 / (i // self.__size + 1) # radius
-            x = np.pi / self.__size * 2 * (i % self.__size) # angle
+            r = 1 / (i // self._size + 1) # radius
+            x = np.pi / self._size * 2 * (i % self._size) # angle
             fixed_pos.update({i: (r * np.cos(x), r * np.sin(x))})
 
         # get the nx positions
@@ -301,26 +305,30 @@ class BAM(Layer):
         depression_rate: float
             The rate at which the synapses is decaying due to a lack of activities
         """
-        self.__eta = float(adapting_rate)
-        self.__phi = float(depression_rate)
+        self._eta = float(adapting_rate)
+        self._phi = float(depression_rate)
+
+        self._act_func = act_func
 
         if dep_func is None:
-            self.__dep_func = lambda v, I: v - self.__phi / (I * v**2 + self.__phi)
+            self._dep_func = lambda v, I: v - self._phi / (I * v**2 + self._phi)
         else:
-            self.__dep_func = dep_func
+            self._dep_func = dep_func
 
-        self.__shape = np.array(shape)
+        self._shape = np.array(shape)
         self.name = name
+
+        self._w = np.zeros(shape)
 
     def learn(self, I1, I2):
         # GHA
-        self._w += self.__eta * (np.outer(I1, I2) \
+        self._w += self._eta * (np.outer(I1, I2) \
                     - self._w @ np.triu(np.outer(I2, I2)))
         # depression
-        self._w = np.apply_along_axis(lambda v: self.__dep_func(v, I1), 0, self._w)
+        self._w = np.apply_along_axis(lambda v: self._dep_func(v, I1), 0, self._w)
 
     def recall(self, I):
-        r = I @ self._w
+        r = self._act_func(I) @ self._w
         norm_r = np.linalg.norm(r)
         if norm_r != 0:
             return r / norm_r
@@ -332,9 +340,9 @@ class BAM(Layer):
 
         # add edges
         fixed_pos = {}
-        p = self.__shape[0] - self.__shape[1] / 2
-        for i in range(self.__shape[0]):
-            for j in range(self.__shape[0], self.__shape[0] + self.__shape[1]):
+        p = self._shape[0] - self._shape[1] / 2
+        for i in range(self._shape[0]):
+            for j in range(self._shape[0], self._shape[0] + self._shape[1]):
                 g.add_edge(i, j)
                 fixed_pos.update({i: (0, i), j: (1, j - p)})
 

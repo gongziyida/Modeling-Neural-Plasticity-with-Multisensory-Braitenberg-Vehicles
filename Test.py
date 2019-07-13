@@ -8,9 +8,6 @@ DESCRIPTION
 
 '''
 import numpy as np
-from Stimuli import *
-from Layers import *
-from Environment import *
 
 def test_Stimuli():
     num_s = 10000
