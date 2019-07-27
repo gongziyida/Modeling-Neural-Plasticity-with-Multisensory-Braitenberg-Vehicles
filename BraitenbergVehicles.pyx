@@ -1,52 +1,57 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-#AUTHOR: Ziyi Gong
-#VERSION:
-#PYTHON_VERSION: 3.6
-'''
-DESCRIPTION
-
-'''
+import numpy as np
+cimport numpy as np
 import Layers as l
 import Movement as m
 import networkx as nx
 import matplotlib.pyplot as plt
 
-class SingleSensor:
-    def __init__(self, orn_size, grn_size, gus_T, pfunc, lim,
-                 smell_period=50, smell_tau=2, olf_adapting_rate=0.0005,
-                 olf_th=1, asso_adapting_rate=0.001, asso_depression_rate=1e-10,
-                 init_pos=(0, 0)):
 
-        self._olf = l.LiHopfield(orn_size,
+cdef class SingleSensor:
+    cdef object _olf, _gus, _asso, _motor, _pfunc
+
+    def __init__(self, int orn_size, int grn_size, int gus_T, int lim, 
+                 object pfuncs, int smell_period=50, int smell_tau=2.0, 
+                 double olf_adapting_rate=0.0005,
+                 double asso_adapting_rate=0.001, 
+                 double asso_depression_rate=1e-10,
+                 (int, int) init_pos=(0, 0)):
+
+        self._olf = l.LiHopfield(orn_size, name='Olfaction',
                                  period=smell_period, tau=smell_tau,
-                                 adapting_rate=olf_adapting_rate, th=olf_th)
+                                 adapting_rate=olf_adapting_rate)
 
-        self._gus = l.Single(grn_size)
+        self._gus = l.Single(grn_size, name='Gustation', act_func=lambda x: x)
 
-        self._asso = l.BAM(orn_size, grn_size,
+        self._asso = l.BAM((orn_size, grn_size), name='Association',
                            adapting_rate=asso_adapting_rate,
                            depression_rate=asso_depression_rate)
 
         self._motor = m.RadMotor(grn_size, lim, pos=init_pos)
 
-        self._pfunc = pfunc
+        self._pfunc = pfuncs
+
 
     def get_pos(self):
         return self._motor.get_pos()
 
-    def set_target(self, target):
+    def set_target(self, (int, int) target):
         self._motor.heading(target)
 
-    def is_at(self, pos, th=0):
+    def is_at(self, (int, int) pos, double th=0.0):
         return self._motor.is_at(pos)
 
-    def _learn(self, I1, gus):
+    cdef void _learn(self, np.ndarray[np.float_t] I1, 
+                           np.ndarray[np.float_t] gus):
+        cdef np.ndarray[np.float_t] I2
         I2 = self._gus.feed(gus)
         self._asso.learn(I1, I2)
 
 
-    def feed(self, olf, gus, mode='real'):
+    def np.ndarray[np.float_t] feed(self, np.ndarray[np.float_t] olf, 
+                                         np.ndarray[np.float_t] gus, 
+                                         str mode='real'):
+        cdef np.ndarray[np.float_t] I1
+
         I1 = self._olf.feed(olf)
 
         if mode == 'real':
@@ -64,16 +69,21 @@ class SingleSensor:
         else:
             raise TypeError('The mode "'+ mode +'" is not understood.')
 
-    def judge(self, I):
-        preference = 0
-        for f, i in zip(self._pfunc, I):
-            preference += f(i)
+
+
+    def double judge(self, np.ndarray[np.float_t] I):
+        cdef double preference = 0.0
+        cdef int i
+
+        for i in range(I.shape[0]):
+            preference += self._pfunc[i](I[i])
 
         return preference
 
-    def walk(self, I):
+    def void walk(self, np.ndarray[np.float_t] I):
         self._motor.set_preference(self.judge(I))
-        return self._motor.move()
+        self._motor.move()
+
 
     def save_network_img(self, fnames=None):
         if fnames is None:
