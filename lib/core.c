@@ -5,10 +5,11 @@
 #define PI 3.141592654
 #define TWO_PI 3.141592654 * 2
 
+// General-usage functions begin
 
-/*************************************************************
+/*
  * Gaussian random value generator
- *************************************************************/
+ */
 double gaussian(double m, double std){
 	static double U, V;
 	static int phase = 0;
@@ -28,16 +29,23 @@ double gaussian(double m, double std){
 }
 
 
-/*************************************************************
+/*
  * calculate the outer product, or the triangular part of 
  * the outer product
- *************************************************************/
+ */
 void sq_outer(double *res, const double *a1, const double *a2, 
 				int len, char tri){
+	int k;
+
 	if (tri == 'u' || tri == 'n'){
 		for (int j = 0; j < len; j++){
 			for (int i = j; i < len; i++){
-				res[i * len + j] = a1[j] * a2[i];
+				k = i * len + j;
+				res[k] = a1[j] * a2[i];
+
+				if (isnan(res[k])){
+					res[k] = 0;
+				}
 			}
 		}
 	} 
@@ -45,36 +53,70 @@ void sq_outer(double *res, const double *a1, const double *a2,
 	if (tri == 'l' || tri == 'n'){
 		for (int i = 0; i < len; i++){
 			for (int j = i; j < len; j++){
-				res[i * len + j] = a1[j] * a2[i];
+				k = i * len + j;
+				res[k] = a1[j] * a2[i];
+
+				if (isnan(res[k])){
+					res[k] = 0;
+				}
 			}
 		}
 	}
 }
 
 
-/*************************************************************
+/*
  * calculate I - a * L, where I is an identity matrix and a is a scalar
- *************************************************************/
+ */
 void I_minus_aL(double *L, double a, int size){
 	int k;
+	double r;
 	for (int i = 0; i < size; i++){
 		for (int j = 0; j < size; j++){
 			k = i + j * size;
+			r = a * L[k];
+
 			if (j == i){
-				L[k] = 1 - a * L[k];
+				L[k] = 1 - r;
 			} else{
-				L[k] = - a * L[k];
+				L[k] = - r;
+			}
+
+			if (isnan(L[k])){
+				L[k] = 0;
 			}
 		}
 	}
 }
 
+/*
+ * remove NaN in a matrix
+ */
+void rmnan(double *w, int *shape){
+	int size_in = shape[0];
+	int size_out = shape[1];
+	int k;
 
-// Following are the functions specified for certain classes
+	for (int i = 0; i < size_out; i++){
+		for (int j = 0; j < size_in; j++){
+			k = i + j * size_out;
+			
+			if (isnan(w[k])){
+				w[k] = 0;
+			}
+		}
+	}
+}
 
-/*************************************************************
+// General-usage functions end
+
+//*****************************************************************
+
+// Functions specified for certain classes begin
+
+/*
  * Select positions of the stimulus sources for class Space.Space 
- *************************************************************/
+ */
 void set_stim_pos(int *pos, int num_stim, int max_pos, char method){
 	if (method == 'r'){
 		srand((unsigned int) time(NULL));
@@ -114,9 +156,9 @@ void set_stim_pos(int *pos, int num_stim, int max_pos, char method){
 }
 
 
-/*************************************************************
+/*
  * Build the space for class Space.Space 
- *************************************************************/
+ */
 double diff(int d, double max_pos){
 	d = abs(d);
 	if (d > max_pos / 2) {
@@ -149,7 +191,7 @@ void build_space(double *space, const double *att, const int *pos,
 					ai = k * pxl_dim + a;
 					space[si] += factor * att[ai];
 
-					if (k == num_stim - 1 && space[si] < 0.0001){
+					if (k == num_stim - 1 && space[si] < 1e-4){
 						space[si] = 0;
 					}
 				}
@@ -167,9 +209,9 @@ void build_space(double *space, const double *att, const int *pos,
 }
 
 
-/*************************************************************
+/*
  * the tanh function for Layers.LiHopfield
- *************************************************************/
+ */
 void tanh_f(double *res, const double *arr, int len, int ax, double th){
 	double s, s_, r, factor;
 	if (ax == 0){
@@ -188,61 +230,94 @@ void tanh_f(double *res, const double *arr, int len, int ax, double th){
 		}
 
 		res[i] = s_ + s * tanh(r / s);
-	}
-}
 
-
-/*************************************************************
- * calculate the signal power for Layers.LiHopfield
- *************************************************************/
-void sig_power(double *res, const double *arr, int len, double th){
-	double r;
-	for (int i = 0; i < len; i++){
-		r = arr[i] - th;
-
-		if (r > 0){
-			res[i] += pow(arr[i] * 0.5, 2);
+		if (isnan(res[i])){
+			res[i] = 0;
 		}
 	}
 }
 
 
-/*************************************************************
+/*
+ * calculate the signal power for Layers.LiHopfield
+ */
+void sig_power(double *res, const double *arr, int max_period, 
+				int len, double th){
+	double r;
+	double sq_sum = 0;
+
+	for (int j = 0; j < len; j++){
+		res[j] = 0; // clear
+
+		for (int i = 0; i < max_period; i++){
+			r = arr[j * max_period + i];
+
+			if (r > th){
+				res[j] += pow(r * 0.5, 2);
+			}
+		}
+
+		sq_sum += pow(res[j], 2);
+	}
+
+	if (sq_sum > 1e-15){ // normalize
+		for (int i = 0; i < len; i++){
+			res[i] /= sqrt(sq_sum);
+
+			if (isnan(res[i])){
+				res[i] = 0;
+			}
+		}
+	}
+}
+
+
+/*
  * the depression function for Layers.BAM
- *************************************************************/
+ TODO: change the depression function
+ */
 void dep_f(double *w, const double *I, const int *shape, double phi){
 	int size_in = shape[0];
 	int size_out = shape[1];
 	int k;
+	double r;
 
 	for (int i = 0; i < size_out; i++){
 		for (int j = 0; j < size_in; j++){
 			k = i + j * size_out;
-			w[k] -= phi / (I[j] * pow(w[k], 2) + phi);
+			r = I[j] * pow(w[k], 2) + phi;
+
+			w[k] -= phi / r;
+
+			if (isnan(w[k])){
+				w[k] = 0;
+			}
 		}
 	}	
 }
 
 
-/*************************************************************
+/*
  * the move function for Movement.RadMotor
- *************************************************************/
-void cmove(double *heading_rad, double *pos, const double p, 
-			const double minStep, const double lim, 
-			const double target_dir){
+ */
+void cmove(double *heading_rad, double *pos, const double preference,
+			const double prev_preference, const double minStep, 
+			const double lim, const double target_dir){
 	
+	double p = preference - prev_preference;
+
 	// make decision on where to go next
 	srand((unsigned int) time(NULL));
-	if (p > 1){
+	if (p / preference > 0.05){
 		// go forward
-		*heading_rad = gaussian(*heading_rad, PI / (p * 2));
-	} else if (p < -1){
+		*heading_rad = gaussian(*heading_rad, PI / (p * 200));
+	} else if (p / preference < -0.05){
 		// go backward
-        *heading_rad = gaussian(*heading_rad - PI, PI / (-p * 2));
+        *heading_rad = gaussian(*heading_rad - PI, PI / (-p * 200));
 	} else{ // p in [-1, 1]
-		int rand_choice = rand() % 2;
+		int rand_choice = rand() % 5;
 
-		if (rand_choice){ // random walk
+		if (rand_choice != 0 && preference != 0){ // random walk
         	*heading_rad = rand() / (RAND_MAX + 1.0);
 		} else{ // go for the target
 			*heading_rad = target_dir;
@@ -267,3 +342,34 @@ void cmove(double *heading_rad, double *pos, const double p,
 }
 
 
+/*
+ * the judge function for Simulation
+ TODO: change/add judge functions
+ */
+void judge(double *preference, double *to_judge, int *pfunc, int num_grn){
+	double val = 0;
+
+	for (int i = 0; i < num_grn; i++){
+		val = to_judge[i];
+
+		switch (pfunc[i]){
+			case 0:
+				*preference += 100 * val;
+				break;
+
+			case 1:
+				*preference += -100 * val;
+				break;
+
+			case 2:
+				if (val < 0.5){
+					*preference += 100 * val;
+				} else if (val < 0.5){
+					*preference += -100 * val + 100;
+				} else{
+					*preference += 50;
+				}
+				break;
+		}
+	}
+}
