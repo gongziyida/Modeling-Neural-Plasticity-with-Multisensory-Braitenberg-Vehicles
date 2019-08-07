@@ -1,96 +1,166 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-#AUTHOR: Ziyi Gong
-#VERSION:
-#PYTHON_VERSION: 3.6
-'''
-DESCRIPTION
-'''
-import BraitenbergVehicles as bv
-import Space as s
-import Checking
-import matplotlib.pyplot as plt
-from matplotlib.animation import FuncAnimation
-import networkx as nx
+#cython: language_level=3
+cimport Space
+import Space
+cimport Layers
+import Layers
+cimport Movement
+import Movement
+cimport numpy as np
 import numpy as np
 
-class Simulation:
-    def __init__(self, BV, space):
+cdef extern from "core.h":
+    void judge(double *preference, double *to_judge, int *pfunc, int num_grn)
+
+cdef class Simulation:
+    cdef Layers.LiHopfield _olf
+    cdef Layers.BAM _asso
+    cdef Layers.Single _gus 
+    cdef Movement.RadMotor _m
+    cdef Space.Space _space
+    cdef double _preference
+    cdef int[::1] _pfunc
+    cdef double[::1] _stim, _I1, _recalled, _recalled_default
+    cdef double[:,::1] _pos
+    cdef Py_ssize_t _num_orn, _num_grn
+
+    def __init__(self, Layers.LiHopfield olf, Layers.BAM asso, Layers.Single gus, 
+                    Movement.RadMotor m, Space.Space space, 
+                    np.ndarray[np.int32_t] pfunc):
         """
-        Parameters
+        Parameters 
         ----------
-        BV: BraitenbergVehicles.SingleSensor
-            The agent to put in the space
-        space: Space.Space
-            The space where the agent explores
         """
 
-        #================== Argument Check ============================
-        Checking.arg_check(BV, 'BV', bv.SingleSensor)
-        Checking.arg_check(space, 'space', s.Space)
-        #==============================================================
+        self._olf = olf
+        self._asso = asso
+        self._gus = gus
+        self._m = m
+        self._space = space
 
-        # the agent
-        self._BV = BV
-        # the space
-        self._s = space
-        # number of receptors
-        self._num_orn, self._num_grn = self._s.get_num_receptors()
+        o, g = self._space.get_num_receptors()
+        self._num_orn, self._num_grn = <Py_ssize_t> o, <Py_ssize_t> g
+        
+        self._pos = np.zeros((1, 2), dtype=np.float64)
 
-    def _train(self):
-        att = self._s.get_stim_att()
-        for stim in att:
-            self._BV.feed(stim[:self._num_orn], stim[self._num_orn:], 'train')
+        self._stim = np.zeros(o+g, dtype=np.float64)
 
-    def _test(self, epoch):
-        for i in range(epoch):
-            pos = self._BV.get_pos()
-            self._BV.feed(self._s.stim_at(pos), 'test')
+        self._pfunc = pfunc
 
-    def _real(self, epoch, th):
-        self._fig, self._ax = plt.subplots(2)
-        self._fig.set_size_inches(10, 20)
+        self._preference = 0
 
-        max_pos = self._s.get_max_pos()
-        self._ax[0].set_xlim(0, max_pos)
-        self._ax[0].set_ylim(0, max_pos)
-        self._agent = self._ax[0].scatter(*self._BV.get_pos())
-        self._agent.set_offset_position('data')
+        self._I1 = np.zeros(o)
 
-        xlabels = ['Odor {}'.format(i) for i in range(1, 11)]
-        xlabels += ['Taste {}'.format(i) for i in range(1, 6)]
-        xlabels += ['Preference']
-        self._sensors = self._ax[1].bar(xlabels, [0] * len(xlabels))
-        self._ax[1].set_ylim([-5, 5])
-
-        self._ani = FuncAnimation(self._fig, self._update, interval=10,
-                                  frames=self._frame(epoch), save_count=epoch)
-        self._ani.save('animation.gif', writer='pillow')
-
-    def _frame(self, epoch):
-        for i in range(epoch):
-            if i % 10 == 0:
-                pos = self._BV.get_pos()
-                target = self._s.near(pos)[0]
-                self._BV.set_target(target)
-            pos = self._BV.get_pos()
-            olf, gus = self._s.stim_at(pos)
-            yield pos, np.append(np.append(olf, gus), self._BV.judge(gus))
-            self._BV.walk(gus)
-            self._BV.feed(olf, gus, 'real')
-
-    def _update(self, arg):
-        self._agent.set_offsets(arg[0])
-        for bar, h in zip(self._sensors, arg[1]):
-            bar.set_height(h)
+        self._recalled_default = np.zeros(g, dtype=np.float64)
+        self._recalled = self._recalled_default
 
 
-    def sim(self, mode='real', epoch=1000, th=0):
-        if mode == 'train':
-            self._train()
-        elif mode == 'test':
-            self._test(epoch)
-        elif mode == 'real':
-            self._real(epoch, th)
+    cpdef void set_target(self):
+        pos = self._m.get_pos()
+        target = self._space.near(pos)
+        self._m.heading(target)
+
+
+    cpdef void step(self):
+        self._pos[0] = self._m.get_pos()
+
+        self._stim = self._space.stim_at(<Py_ssize_t> self._pos[0, 0], 
+                                         <Py_ssize_t> self._pos[0, 1])
+
+        self._I1 = self._olf.feed(self._stim[:self._num_orn])
+        cdef double[::1] I2
+
+        cdef bint allzero = True
+        for i in range(self._num_grn):
+            if self._stim[i+self._num_orn] != 0:
+                allzero = False
+                break
+
+        cdef double *to_judge
+        self._preference = 0
+
+        if allzero: # all are zero
+            self._recalled = self._asso.recall(self._I1)
+            to_judge = &self._recalled[0]
         else:
-            raise TypeError('The mode "'+ mode +'" is not understood.')
+            I2 = self._gus.feed(self._stim[self._num_orn:])
+            self._asso.learn(self._I1, I2)
+
+            self._recalled = self._recalled_default
+
+            to_judge = &self._stim[self._num_orn]
+        
+
+        judge(&self._preference, to_judge, &self._pfunc[0], self._num_grn)
+        
+        self._m.set_preference(self._preference)
+
+        self._pos[0] = self._m.move()
+
+
+    def get_BV_pos(self):
+        return self._pos
+
+    def get_pref(self):
+        return self._preference
+
+    def get_cur_stim(self):
+        return self._stim
+
+    def get_stim(self):
+        return self._space.get_stim_pos()
+
+    def get_max_pos(self):
+        return self._space.get_max_pos()
+
+    def get_num_receptors(self):
+        return self._num_orn, self._num_grn
+
+    def get_olf_bulb_output(self):
+        return self._I1
+
+    def get_asso_weight(self):
+        return self._asso.get_weight()
+
+    def get_recalled(self):
+        return self._recalled
+
+    def get_Gx_record(self):
+        return self._olf.get_Gx_record()
+
+
+    def set_olf_param(self, **kwarg):
+        if 'tau' in kwarg:
+            self._olf.set_tau(kwarg['tau'])
+
+        if 'adapting_rate' in kwarg:
+            self._olf.set_adapting_rate(kwarg['adapting_rate'])
+
+    def set_asso_param(self, **kwarg):
+        if 'adapting_rate' in kwarg:
+            self._asso.set_adapting_rate(kwarg['adapting_rate'])
+
+        if 'depression_rate' in kwarg:
+            self._asso.set_depression_rate(kwarg['depression_rate'])
+
+
+class Example(Simulation):
+    def __init__(self):
+        gus = Layers.Single(5, lambda x: x)                                     
+        
+        olf = Layers.LiHopfield(10)                                             
+        
+        m = Movement.RadMotor(200)                                              
+        
+        asso = Layers.BAM(10, 5)                                                
+        
+        def mapping(x, y): 
+            for i in range(x.shape[0]): 
+                for j in range(x.shape[1]): 
+                    y[i, j // 2] += x[i, j]
+                y[i] /= np.linalg.norm(y[i])
+
+        space = Space.Space(20, 10, 5, mapping)                                 
+
+        pfunc = np.array([0, 0, 1, 1, 2], dtype=np.int32)                       
+
+        super().__init__(olf, asso, gus, m, space, pfunc)

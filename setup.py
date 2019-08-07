@@ -25,20 +25,13 @@ ext_modules = [
         library_dirs=["lib"],
         include_dirs=[numpy.get_include(), "lib"]
     ),
-    # Extension(
-    #     name="BraitenbergVehicles",
-    #     sources=["BraitenbergVehicles.pyx"],
-    #     libraries=["core"],
-    #     library_dirs=["lib"],
-    #     include_dirs=[numpy.get_include(), "lib"]
-    # ),
-    # Extension(
-    #     name="Simulation",
-    #     sources=["Simulation.pyx"],
-    #     libraries=["core"],
-    #     library_dirs=["lib"],
-    #     include_dirs=[numpy.get_include(), "lib"]
-    # )
+    Extension(
+        name="Simulation",
+        sources=["Simulation.pyx"],
+        libraries=["core"],
+        library_dirs=["lib"],
+        include_dirs=[numpy.get_include(), "lib"]
+    )
 ]
 
 setup(name="Space",

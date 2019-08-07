@@ -1,10 +1,9 @@
 #cython: language_level=3
-import numpy as np
 cimport numpy as np
+import numpy as np
 cimport cython
 cimport scipy.linalg.cython_blas as blas
 from scipy.special import expit
-import Checking
 import matplotlib.pyplot as plt
 import networkx as nx
 
@@ -25,12 +24,13 @@ cdef int LD = 1 # the spacing variable
 """
 cdef extern from "core.h":
     void tanh_f(double *res, const double *arr, int len, int ax, double th)
-    void sig_power(double *res, const double *arr, int len, double th)
+    void sig_power(double *res, const double *arr, int max_period, 
+                int len, double th)
     void dep_f(double *w, const double *I, const int *shape, double phi)
     void sq_outer(double *res, const double *a1, const double *a2, 
                 int len, char tri)
     void I_minus_aL(double *L, double a, int size)
-
+    void rmnan(double *w, int *shape)
 
 
 @cython.boundscheck(False)
@@ -58,7 +58,7 @@ cdef void _GHA(double[::1,:] W, double[::1,:] L, double[::1,:] O,
         trans_O: bint
             if transposing O
     """
-    
+
     cdef int mn = m * n
 
     # L' = I - eta * L
@@ -66,13 +66,12 @@ cdef void _GHA(double[::1,:] W, double[::1,:] L, double[::1,:] O,
 
     # W = L' @ W
     blas.dtrmm(&LT, &LT, &NO, &NO, &m, &n, &POS1, &L[0, 0], &m, &W[0, 0], &m)
-    
+
     # W = eta * O + W
     if trans_O:
         blas.daxpy(&mn, &eta, &O.T.copy_fortran()[0, 0], &LD, &W[0, 0], &LD)
     else:
         blas.daxpy(&mn, &eta, &O[0, 0], &LD, &W[0, 0], &LD)
-
 
 
 
@@ -83,7 +82,6 @@ cdef void _GHA(double[::1,:] W, double[::1,:] L, double[::1,:] O,
 cdef class Layer:
     """ Super class
     """
-    cdef int[::1] _shape
 
     def __init__(self, np.ndarray[np.int_t] shape):
         """
@@ -104,9 +102,8 @@ cdef class Layer:
 cdef class Single(Layer):
     """ A single layer
     """
-    cdef object _act_func
 
-    def __init__(self, size, act_func=expit):
+    def __init__(self, int size, object act_func=expit):
         """
         Parameters
         ----------
@@ -115,14 +112,11 @@ cdef class Single(Layer):
         act_func : collection of callables
             The activation functions
         """
-        #================== Argument Check ============================
-        Checking.arg_check(act_func, 'act_func', 'callable')
-        #==============================================================
         self._shape = np.array((size,), dtype=np.int32)
         self._act_func = act_func
 
 
-    cpdef np.ndarray[np.float64_t] feed(self, np.ndarray[np.float64_t] I):
+    cpdef double[::1] feed(self, double[::1] I):
         """ Feed the layer with input
 
         Parameters
@@ -145,18 +139,14 @@ cdef class LiHopfield(Layer):
     """ The Li-Hopfield model of olfactory bulb, with the same numbers of mitral
         cells and granule cells
     """
-    cdef int _size, _period
-    cdef double _th, _tau, _eta, _a_x, _a_y
-    cdef double[::1] _x, _y, _p, _Gx, _Gy, _I, _I_c
-    cdef double[::1,:] _L, _GM, _MG, _Lxx, _Lyy, _xy
 
     @cython.boundscheck(False)
     @cython.wraparound(False)
     @cython.initializedcheck(False)
     @cython.cdivision(True)
-    def __init__(self, int size, int period=50, 
+    def __init__(self, int size, int period=50, int memory=2,
                  double tau=2.0, double adapting_rate=0.0005, 
-                 double I_c=0.1, double th=1):
+                 double I_c=0.1, double th=1, bint enable_GHA=False):
         """
         Parameters
         ----------
@@ -166,6 +156,8 @@ cdef class LiHopfield(Layer):
             The activation function. Default is tanh.
         period: int
             The period during which the agent stay in a spot
+        memory: int
+            The largest number of period to remember
         tau: float
             The cell time const
         adapting_rate: float
@@ -181,6 +173,7 @@ cdef class LiHopfield(Layer):
         # descriptors
         self._size = size
         self._shape = np.array((size, size), dtype=np.int32)
+        self._enable_GHA = enable_GHA
         
         # threshold
         self._th = th
@@ -245,9 +238,35 @@ cdef class LiHopfield(Layer):
         self._MG = dim2arr.T.copy(order='F')
 
 
+        # memory-related
+
+        # the largest number of periods to remember
+        self._memory = memory
+
+        self._max_period = self._memory * self._period
+
+        # the next interval for the current period
+        self._next_intvl = 0
+
+        # for clarifying the increases in input (for naive noise filter)
+        self._Gx_record = np.zeros((self._max_period, self._size), 
+                                    dtype=np.float64, order='F')
+
+    def set_tau(self, double t):
+        self._tau = t
+        self._a_x = 1 - 1 / t
+        self._a_y = 1 - 1 / t
+
+    def set_adapting_rate(self, double a):
+        self._eta = a
+
     @cython.initializedcheck(False)
     def get_weight(self):
-        return self._MG.copy(), self._GM.copy(), self._L.copy()
+        return self._MG, self._GM, self._L
+
+    @cython.initializedcheck(False)
+    def get_Gx_record(self):
+        return self._Gx_record
 
 
     @cython.boundscheck(False)
@@ -283,21 +302,29 @@ cdef class LiHopfield(Layer):
         blas.daxpy(&m, &POS1, &self._I_c[0], &LD, &self._y[0], &LD)
 
 
-
     @cython.boundscheck(False)
     @cython.wraparound(False)
     @cython.initializedcheck(False)
     @cython.cdivision(True)
-    cpdef double[::1] feed(self, np.ndarray[np.float64_t] I):
+    cpdef double[::1] feed(self, double[::1] I):
+        # 1D array buffer
+        cdef np.ndarray[np.float64_t] one_d = \
+            np.zeros(self._size, dtype=np.float64)
+
+        # 2D array buffer
+        cdef np.ndarray[np.float64_t, ndim=2] two_d = \
+            np.zeros(self._shape, dtype=np.float64)
+
+        # iteration variable
+        cdef Py_ssize_t t 
+
+        # starting index for _Gx_record
+        cdef Py_ssize_t k = self._next_intvl * self._period
+
         # # init: set the internal states and power to zeros
         # self._x = np.zeros(self._size)
         # self._y = self._x.copy()
-        # self._p = self._x.copy()
-        cdef int t
-        cdef np.ndarray[np.float64_t] one_d = \
-            np.zeros(self._size, dtype=np.float64)
-        cdef np.ndarray[np.float64_t, ndim=2] two_d = \
-            np.zeros(self._shape, dtype=np.float64)
+        # self._p = np.zeros(self._size)
 
         self._xy = two_d.copy(order='F')
         self._Lxx = two_d.copy(order='F')
@@ -309,7 +336,8 @@ cdef class LiHopfield(Layer):
         self._Gy = one_d.copy(order='F')
 
         # init: the input
-        self._I = I.copy(order='F')
+        self._I = I
+
 
         # start simulation iterations
         for t in range(1, self._period):
@@ -320,8 +348,8 @@ cdef class LiHopfield(Layer):
             tanh_f(&self._Gx[0], &self._x[0], self._size, 0, self._th)
             tanh_f(&self._Gy[0], &self._y[0], self._size, 1, self._th)
 
-            # update the power of mitral cells' signals
-            sig_power(&self._p[0], &self._Gx[0], self._size, self._th)
+            self._Gx_record[k + t - 1] = self._Gx
+
 
             # outer products
             # xy = x @ y.T
@@ -334,13 +362,22 @@ cdef class LiHopfield(Layer):
             sq_outer(&self._Lyy[0, 0], &self._y[0], 
                     &self._y[0], self._size, LT)
 
-            # GHA
-            # MG += eta * (xy - Lxx @ MG)
-            # GM += eta * (yx - Lyy @ GM)
-            _GHA(self._MG, self._Lxx, self._xy, self._eta, 
-                    self._size, self._size)
-            _GHA(self._GM, self._Lyy, self._xy, self._eta, 
-                    self._size, self._size, True)
+            if self._enable_GHA:
+                # GHA
+                # MG += eta * (xy - Lxx @ MG)
+                # GM += eta * (yx - Lyy @ GM)
+                _GHA(self._MG, self._Lxx, self._xy, self._eta, 
+                        self._size, self._size)
+                _GHA(self._GM, self._Lyy, self._xy, self._eta, 
+                        self._size, self._size, True)
+
+        # update the power of mitral cells' signals
+        sig_power(&self._p[0], &self._Gx_record[0, 0], self._max_period, 
+                    self._size, self._th)
+
+        # update the next interval counter
+        self._next_intvl += 1
+        self._next_intvl %= self._memory
 
         return self._p
 
@@ -398,11 +435,9 @@ cdef class LiHopfield(Layer):
 cdef class BAM(Layer):
     """ Bidirectional associative memory
     """
-    cdef double _eta, _phi
-    cdef double[::1,:] _W
 
     def __init__(self, int norn, int ngrn, double adapting_rate=0.001, 
-                double depression_rate=1e-10):
+                bint enable_dep=False, double depression_rate=1e-10):
         """
         Parameters
         ----------
@@ -423,20 +458,25 @@ cdef class BAM(Layer):
         
         self._W = np.zeros((ngrn, norn), dtype=np.float64).copy(order='F')
 
+        self._enable_dep = enable_dep
+
+    
+    def set_depression_rate(self, double a):
+        self._phi = a
+
+    def set_adapting_rate(self, double a):
+        self._eta = a
 
     @cython.boundscheck(False)
     @cython.wraparound(False)
     @cython.initializedcheck(False)
-    cpdef void learn(self, np.ndarray[np.float64_t] I1, 
-                            np.ndarray[np.float64_t] I2):
+    cpdef void learn(self, double[::1] I1, double[::1] I2):
         cdef np.ndarray[np.float64_t, ndim=2] o = \
             np.zeros(self._shape.T, dtype=np.float64)
         cdef np.ndarray[np.float64_t, ndim=2] l = \
             np.zeros((self._shape[1], self._shape[1]), dtype=np.float64)
         cdef double[::1,:] L = l.copy(order='F')
         cdef double[::1,:] O = o.copy(order='F')
-        cdef double[::1] _I1 = I1.copy(order='F')
-        cdef double[::1] _I2 = I2.copy(order='F')
         
         # for BLAS
         cdef int m = self._shape[1]
@@ -444,40 +484,49 @@ cdef class BAM(Layer):
         cdef int k = 1
 
         # O = I2 @ I1.T
-        blas.dgemm(&NO, &TRANS, &m, &n, &k, &POS1, &_I2[0], 
-                    &m, &_I1[0], &n, &ZERO, &O[0, 0], &m)
+        blas.dgemm(&NO, &TRANS, &m, &n, &k, &POS1, &I2[0], 
+                    &m, &I1[0], &n, &ZERO, &O[0, 0], &m)
         # L = LT(I2 @ I2.T)
-        sq_outer(&L[0, 0], &_I2[0], &_I2[0], self._shape[1], LT)
+        sq_outer(&L[0, 0], &I2[0], &I2[0], self._shape[1], LT)
+
         # GHA
         # W += eta * O - L @ W
         _GHA(self._W, L, O, self._eta, self._shape[1], self._shape[0])
 
-        # depression
-        dep_f(&self._W[0, 0], &_I1[0], &self._shape[0], self._phi)
+
+        if self._enable_dep:
+            # depression
+            dep_f(&self._W[0, 0], &I1[0], &self._shape[0], self._phi)
+
+        else: # dep_f already has removing NaN functionality
+            rmnan(&self._W[0, 0], &self._shape[0])
 
 
     @cython.boundscheck(False)
     @cython.wraparound(False)
     @cython.initializedcheck(False)
     @cython.cdivision(True)
-    cpdef double[::1] recall(self, np.ndarray[np.float64_t] I):
+    cpdef double[::1] recall(self, double[::1] I):
         cdef np.ndarray[np.float64_t] r = \
             np.zeros(self._shape[1], dtype=np.float64)
         cdef double[::1] R = r.copy(order='F')
-        cdef double[::1] _I = I.copy(order='F')
         cdef int m = self._shape[1]
         cdef int n = self._shape[0]
 
         # R = W @ I
         blas.dgemv(&NO, &m, &n, &POS1, &self._W[0, 0], &m, 
-                    &_I[0], &LD, &ZERO, &R[0], &LD)
+                    &I[0], &LD, &ZERO, &R[0], &LD)
         # euclidean norm
         cdef double norm = blas.dnrm2(&m, &R[0], &LD)
 
-        if norm > 1e-15:
+        if norm != 0:
             norm = 1 / norm
             blas.dscal(&m, &norm, &R[0], &LD)
         return R
+
+    @cython.initializedcheck(False)
+    def get_weight(self):
+        return self._W
 
 
     def save_img(self, fname='bam.png'):

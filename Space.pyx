@@ -1,6 +1,6 @@
 #cython: language_level=3
-import numpy as np
 cimport numpy as np
+import numpy as np
 cimport cython
 from libc.math cimport abs, sqrt, ceil, exp as cabs, sqrt, ceil, exp
 from libc.stdlib cimport qsort
@@ -36,19 +36,19 @@ cdef int cmp_ax1(const void* a, const void* b) nogil:
 """
 
 cdef class Space:
-    cdef int _num_stim, _num_orn, _num_grn, _max_pos, _gus_T, _pixel_dim
-    cdef LazyKDTree _kd
-    cdef str _method
-    cdef int[:,::1] _pos
-    cdef double[:,::1] _att
-    cdef double[:,:,::1] _space
+    # cdef int _num_stim, _num_orn, _num_grn, _max_pos, _gus_T, _pixel_dim
+    # cdef LazyKDTree _kd
+    # cdef str _method
+    # cdef int[:,::1] _pos
+    # cdef double[:,::1] _att
+    # cdef double[:,:,::1] _space
 
     @cython.boundscheck(False)
     @cython.wraparound(False)
     @cython.initializedcheck(False)
     def __init__(self, int num_stim, int num_orn, int num_grn, 
                  object mapping, str method='r',
-                 int max_pos=500, int gus_T=3):
+                 int max_pos=200, int gus_T=5):
         """
         Parameters
         ----------
@@ -116,10 +116,10 @@ cdef class Space:
         return self._num_orn, self._num_grn
 
     def get_stim_pos(self):
-        return self._pos.copy()
+        return self._pos
 
     def get_stim_att(self):
-        return self._att.copy()
+        return self._att
 
     def get_max_pos(self):
         return self._max_pos
@@ -129,14 +129,12 @@ cdef class Space:
     @cython.wraparound(False)
     @cython.initializedcheck(False)
     @cython.cdivision(True)
-    def stim_at(self, (int, int) pos):
-        cdef Py_ssize_t x, y
+    cpdef double[::1] stim_at(self, Py_ssize_t x, Py_ssize_t y):
         # round pos
-        x = pos[0] % self._max_pos
-        y = pos[1] % self._max_pos
+        x %= self._max_pos
+        y %= self._max_pos
 
-        return self._space[x, y, :self._num_orn], \
-                self._space[x, y, self._end_orn:]
+        return self._space[x, y]
 
 
     def near(self, pos):
@@ -181,9 +179,9 @@ cdef class Space:
 cdef class Node:
     """ A helper class for KD tree
     """
-    cdef public int[::1] pos
-    cdef public Node lc, rc
-    cdef public bint flag # if visited
+    # cdef public int[::1] pos
+    # cdef public Node lc, rc
+    # cdef public bint flag # if visited
 
     def __init__(self, int[::1] pos, Node lc, Node rc):
         self.pos = pos
@@ -197,9 +195,9 @@ cdef class LazyKDTree:
     """ A non-deterministic KD tree that does not give exactly 
         the nearest neighbor so as to save some runtime
     """
-    cdef int _num_stim, _max_pos, _num_visited
-    cdef bint _flag # buffer flag
-    cdef Node _tree
+    # cdef int _num_stim, _max_pos, _num_visited
+    # cdef bint _flag # buffer flag
+    # cdef Node _tree
 
     def __init__(self, int[:,::1] pos, int max_pos):
         """
@@ -253,7 +251,7 @@ cdef class LazyKDTree:
         return Node(val, lc, rc)
 
 
-    cpdef int[::1] near(self, (int, int) pos):
+    cpdef double[::1] near(self, double[::1] pos):
         """ Find a nearby point
 
         Parameters
@@ -284,13 +282,14 @@ cdef class LazyKDTree:
         cur = local_min[0]
         cur.flag = self._flag
 
-        return cur.pos
+        cdef double[::1] res = np.array(cur.pos, dtype=np.float64)
+        return res
 
 
     @cython.boundscheck(False)
     @cython.wraparound(False)
     @cython.initializedcheck(False)
-    cdef void _near(self, (int, int) pos, Node cur, 
+    cdef void _near(self, double[::1] pos, Node cur, 
                     list local_min, Py_ssize_t dim):
         cdef double to_cur = self._dist_to(cur, pos)
         cdef double to_line
@@ -330,7 +329,8 @@ cdef class LazyKDTree:
     @cython.boundscheck(False)
     @cython.wraparound(False)
     @cython.initializedcheck(False)
-    cdef double _dist_to(self, Node n, (int, int) pos):
+    @cython.cdivision(True)
+    cdef double _dist_to(self, Node n, double[::1] pos):
         cdef int x = <int> cabs(pos[0] - n.pos[0])
         cdef int y = <int> cabs(pos[1] - n.pos[1])
 
