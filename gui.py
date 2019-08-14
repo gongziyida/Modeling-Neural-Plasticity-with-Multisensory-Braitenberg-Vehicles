@@ -211,13 +211,13 @@ class Environment(QtGui.QWidget):
 
 
 if __name__ == '__main__':
-    gus = Layers.Single(5, lambda x: x)                                     
+    gus = Layers.Single(4, lambda x: x)                                     
     
-    olf = Layers.LiHopfield(10, tau=5, enable_GHA=False)                                             
+    olf = Layers.LiHopfield(8, tau=5, enable_GHA=False)                                             
     
     m = Movement.RadMotor(200)                                              
     
-    asso = Layers.BAM(10, 5, depression_rate=1e-13)                                                
+    asso = Layers.BAM(8, 4, depression_rate=1e-13)                                                
     
     def mapping(x, y): 
         for i in range(x.shape[0]): 
@@ -225,9 +225,9 @@ if __name__ == '__main__':
                 y[i, j // 2] += x[i, j]
             y[i] /= np.linalg.norm(y[i])
 
-    space = Space.Space(20, 10, 5, mapping)                                 
+    space = Space.Space(20, 8, 4, mapping)                                 
 
-    pfunc = np.array([0, 0, 1, 1, 1], dtype=np.int32) 
+    pfunc = np.array([0, 0, 1, 1], dtype=np.int32) 
 
     sim = Simulation.Simulation(olf, asso, gus, m, space, pfunc)
 
