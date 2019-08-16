@@ -23,7 +23,7 @@ Gustatory system is only a single layer, for taste is simply "impression" in thi
 In the implementation, it is in `Layers.Single` class.
 
 ### Associative Memory
-The associative memory, implemented as a [bidirectional associative memory (BAM)](https://en.wikipedia.org/wiki/Bidirectional_associative_memory), is where Hebbian learning happens. Rather than Hebbian rule that BAM often utilized, [Generalized Hebbian algorithm (GHA) or Sanger's rule] (https://en.wikipedia.org/wiki/Generalized_Hebbian_Algorithm) is used, for it is demonstrably stable. 
+The associative memory, implemented as a [bidirectional associative memory (BAM)](https://en.wikipedia.org/wiki/Bidirectional_associative_memory), is where Hebbian learning happens. Rather than Hebbian rule that BAM often utilized, [Generalized Hebbian algorithm](https://en.wikipedia.org/wiki/Generalized_Hebbian_Algorithm) is used, for it is demonstrably stable. 
 <img src="/img/asso.png" alt="BAM" width="310"/>
 
 Notably, the learning rate should be properly set and converge to zero for accuracy, but in this simulation it is a small constant, because this learning process, unlike typical machine learning with neural networks where samples are learned one by one, occurs in a space where samples are mixed and the times learning each sample is unknown (so are the orders of learning samples). It is hard to determine the initial learning rate and control the converging pace. It is also hard to avoid the effect of initial conditions if the convergence is introduced. 
