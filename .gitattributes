@@ -1,1 +1,3 @@
-*.ipynb linguist-language=Python
+*.ipynb linguist-language=
+*.pxd linguist-language=Cython
+*.pyx linguist-language=Cython
