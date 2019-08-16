@@ -23,7 +23,7 @@ void dep_f(double *w, const double *I, const int *shape, double phi);
 
 void cmove(double *heading_rad, double *pos, const double preference,
 			const double prev_preference, const double minStep, 
-			const double lim, const double target_dir);
+			const double lim, const double target_dir, const int sig_ign);
 
 void judge(double *preference, double *to_judge, int *pfunc, int num_grn);
 
