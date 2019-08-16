@@ -45,8 +45,7 @@ It is incorporated in `Simulation` class.
 ## Environment
 The enviornment is realistic that olfactory stimuli decay with distances exponentially from their sources, while gustatory stimuli are sensible only when the BV is close to their sources.
 
-<img src="/img/odor_space_0.png" alt="Odor" width="310"/>
-<img src="/img/taste_space_0.png" alt="Taste" width="300"/> 
+<img src="/img/odor_space_0.png" alt="Odor" width="300"/> <img src="/img/taste_space_0.png" alt="Taste" width="300"/> 
 
 Odor space of one olfactory attribute (left) and taste space of one gustatory attribute (right).
 
