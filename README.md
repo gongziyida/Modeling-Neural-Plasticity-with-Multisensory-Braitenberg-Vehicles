@@ -1,9 +1,10 @@
 # Modeling Neural Development with Multisensory Braitenberg Vehicles
 ## Content
 <strong> 
-1. Introduction
   
+1. Introduction 
 2. BV Components
+
     - Olfactory System
     - Gustatory System
     - Associative Memory
