@@ -36,12 +36,6 @@ cdef int cmp_ax1(const void* a, const void* b) nogil:
 """
 
 cdef class Space:
-    # cdef int _num_stim, _num_orn, _num_grn, _max_pos, _gus_T, _pixel_dim
-    # cdef LazyKDTree _kd
-    # cdef str _method
-    # cdef int[:,::1] _pos
-    # cdef double[:,::1] _att
-    # cdef double[:,:,::1] _space
 
     @cython.boundscheck(False)
     @cython.wraparound(False)
@@ -59,8 +53,8 @@ cdef class Space:
         num_grn: int
             The number of gustatory attributes in a stimulus
         mapping: collection of callables
-            The collection of mapping types, from olfactory attributes to
-            gustatory attributes
+            Mapping from olfactory attributes to gustatory attributes
+            It should be of form "mapping(olf, gus)"
         method: str
             The method to choose the locations of stimulus sources. Default is
             'random'. Another option can be 'matrix'.
@@ -69,7 +63,7 @@ cdef class Space:
         gus_T: int
             The threshold within which the gustatory information is detectable
         """
-        cdef Py_ssize_t i
+        cdef Py_ssize_t i, j
         cdef Py_ssize_t end_orn = num_orn
         cdef double[:,::1] olf_att, gus_att
         cdef char method_char = b'r' if method == 'r' else b'm'
@@ -96,7 +90,11 @@ cdef class Space:
         olf_att = np.abs(np.random.normal(size=(num_stim, num_orn)))
         # gustatory attributes
         gus_att = np.zeros((num_stim, num_grn))
-        mapping(olf_att, gus_att)
+        
+        # mapping(olf_att, gus_att)
+        for i in range(olf_att.shape[0]):
+            mapping(olf_att[i], gus_att[i])
+
         # assign back
         self._att[:, :end_orn] = olf_att
         self._att[:, end_orn:] = gus_att
@@ -179,9 +177,6 @@ cdef class Space:
 cdef class Node:
     """ A helper class for KD tree
     """
-    # cdef public int[::1] pos
-    # cdef public Node lc, rc
-    # cdef public bint flag # if visited
 
     def __init__(self, int[::1] pos, Node lc, Node rc):
         self.pos = pos
@@ -195,9 +190,6 @@ cdef class LazyKDTree:
     """ A non-deterministic KD tree that does not give exactly 
         the nearest neighbor so as to save some runtime
     """
-    # cdef int _num_stim, _max_pos, _num_visited
-    # cdef bint _flag # buffer flag
-    # cdef Node _tree
 
     def __init__(self, int[:,::1] pos, int max_pos):
         """

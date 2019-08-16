@@ -9,6 +9,7 @@ import numpy as np
 import random
 import sys
 import time
+import os
 
 import Simulation
 import Layers
@@ -82,8 +83,15 @@ class Environment(QtGui.QWidget):
         self.pref_widget = pg.PlotWidget()
         self.pref_widget.setYRange(-100, 100)
         self.pref_widget.setTitle('Preference')
-        self.pref_plot = pg.PlotCurveItem()
+        self.pref_widget.addLegend(offset=(0, 0))
+
+        self.pref_plot = pg.PlotCurveItem(name='actual')
         self.pref_widget.addItem(self.pref_plot)
+
+        self.ideal_pref_plot = pg.PlotCurveItem(name='ideal')
+        self.ideal_pref_plot.setPen(255, 255, 0)
+        self.pref_widget.addItem(self.ideal_pref_plot)
+
         self.layout.addWidget(self.pref_widget, 0, 2, 1, 1)
         
         # the stimulus received
@@ -91,23 +99,32 @@ class Environment(QtGui.QWidget):
         self.stim = np.zeros(o + g)
         self.olf_processed = np.zeros(o)
         self.recalled = np.zeros(g)
-        self.recalled_x = np.arange(o, o+g)
+        self.gus_x_axis = np.arange(o, o+g)
 
-        # Making preference widget and plot
+        # Making stimulus widget and plot
         xticks = [(i, 'O{}'.format(i)) for i in range(o)] + \
                 [(i+o, 'G{}'.format(i)) for i in range(g)]
         ax = pg.AxisItem(orientation='bottom')
         ax.setTicks([xticks])
         self.stim_widget = pg.PlotWidget(axisItems={'bottom': ax})
         self.stim_widget.setYRange(0, 3)
-        self.stim_widget.setTitle('Stimulus Received / Recalled (red)')
-        self.stim_plot = pg.PlotCurveItem()
+        self.stim_widget.setTitle('Stimulus')
+        self.stim_widget.addLegend(offset=(0, 10))
+
+        # received taste
+        self.stim_plot = pg.PlotCurveItem(name='received')
         self.stim_widget.addItem(self.stim_plot)
         
         # recalled taste
-        self.recalled_plot = pg.PlotCurveItem()
+        self.recalled_plot = pg.PlotCurveItem(name='recalled')
         self.recalled_plot.setPen(255, 0, 0)
         self.stim_widget.addItem(self.recalled_plot)
+
+        # ideal taste
+        self.ideal_gus_plot = pg.PlotCurveItem(name='ideal')
+        self.ideal_gus_plot.setPen(255, 255, 0)
+        self.stim_widget.addItem(self.ideal_gus_plot)
+
         self.layout.addWidget(self.stim_widget, 1, 2, 1, 1)
 
         # set the scale of the 3rd column
@@ -153,49 +170,51 @@ class Environment(QtGui.QWidget):
     def read_pos(self):
         frequency = self.FREQUENCY
         while True:
-            try:
-                # sim
-                if self.step_counter % 100 == 0:
-                    self.sim.set_target()
-                self.sim.step()
-                self.step_counter += 1
-                
-                # update BV pos
-                self.BV_pos = self.sim.get_BV_pos()
-                self.old_BV_pos = self.BV_pos
+            # sim
+            if self.step_counter % 100 == 0:
+                self.sim.set_target()
+            self.sim.step()
+            self.step_counter += 1
+            
+            # update BV pos
+            self.BV_pos = self.sim.get_BV_pos()
+            self.old_BV_pos = self.BV_pos
 
-                # update pref
-                if self.step_counter > 50:
-                    self.pref_data[:-1] = self.pref_data[1:]
-                    self.pref_data[-1] = self.sim.get_pref()
-                else:
-                    self.pref_data[step_counter] = self.sim.get_pref()
+            # update pref
+            self.pref_data = np.asarray(self.sim.get_pref())
 
-                # update stimulus
-                self.stim = np.asarray(self.sim.get_cur_stim())
-                
-                # update processed olfactory information
-                self.olf_processed = np.asarray(self.sim.get_olf_bulb_output())
-                
-                # update recalled taste
-                self.recalled = np.asarray(self.sim.get_recalled())
+            # update ideal pref
+            self.ideal_pref_data = np.asarray(self.sim.get_ideal_pref())
 
-                # update weight
-                self.W = np.asarray(self.sim.get_asso_weight())
+            # update stimulus
+            self.stim = np.asarray(self.sim.get_cur_stim())
+            
+            # update processed olfactory information
+            self.olf_processed = np.asarray(self.sim.get_olf_bulb_output())
+            
+            # update recalled taste
+            self.recalled = np.asarray(self.sim.get_recalled())
 
-                # sleep
-                time.sleep(frequency)
+            # update ideal taste
+            self.ideal_gus = np.asarray(self.sim.get_ideal_gus())
+            if np.isnan(self.ideal_gus).any():
+                print(2)
 
-            except:
-                self.BV_pos = self.old_BV_pos
+            # update weight
+            self.W = np.asarray(self.sim.get_asso_weight())
+
+            # sleep
+            time.sleep(frequency)
 
 
     def plot_updater(self):
         self.moving_BV.setData(pos=self.BV_pos)
         self.pref_plot.setData(y=self.pref_data)
+        self.ideal_pref_plot.setData(y=self.ideal_pref_data)
         self.stim_plot.setData(y=self.stim)
         self.olf_processed_plot.setData(y=self.olf_processed)
-        self.recalled_plot.setData(x=self.recalled_x, y=self.recalled)
+        self.recalled_plot.setData(x=self.gus_x_axis, y=self.recalled)
+        self.ideal_gus_plot.setData(x=self.gus_x_axis, y=self.ideal_gus)
         self.weight_heat.setImage(self.W)
 
 
@@ -211,25 +230,45 @@ class Environment(QtGui.QWidget):
 
 
 if __name__ == '__main__':
-    gus = Layers.Single(4, lambda x: x)                                     
+    o = 10
+    g = 5
+
+    def mapping(x, y): 
+        for i in range(g):
+            y[i] = 0
+
+        for i in range(o):
+            y[i // 2] += x[i]
+
+        norm = np.linalg.norm(y)
+
+        if norm > 1e-15:
+            for i in range(g):
+                y[i] /= norm
+
+    space = Space.Space(20, o, g, mapping)                                 
+
+    gus = Layers.Single(g, lambda x: x)                                     
     
-    olf = Layers.LiHopfield(8, tau=5, enable_GHA=False)                                             
+    olf = Layers.LiHopfield(o, tau=5)                                             
     
     m = Movement.RadMotor(200)                                              
     
-    asso = Layers.BAM(8, 4, depression_rate=1e-13)                                                
+    asso = Layers.BAM(o, g, adapting_rate=1e-7, depression_rate=1e-10, enable_dep=True) 
     
-    def mapping(x, y): 
-        for i in range(x.shape[0]): 
-            for j in range(x.shape[1]): 
-                y[i, j // 2] += x[i, j]
-            y[i] /= np.linalg.norm(y[i])
+    pfunc = np.array([0, 0, 1, 1], dtype=np.int32)
 
-    space = Space.Space(20, 8, 4, mapping)                                 
+    sim = Simulation.Simulation(olf, asso, gus, m, space, pfunc, mapping)
+    
+    # save imgs
+    if not os.path.exists('img'):
+        os.makedirs('img')
 
-    pfunc = np.array([0, 0, 1, 1], dtype=np.int32) 
+    space.save_img(name_prefices=('img/odor_space', 'img/taste_space'))
+    olf.save_img(name='img/olf.png')
+    asso.save_img(name='img/asso.png')
+    sim.save_network_outer_img(name='img/outer_struct.png')
 
-    sim = Simulation.Simulation(olf, asso, gus, m, space, pfunc)
 
     # Create main application window
     app = QtGui.QApplication([])

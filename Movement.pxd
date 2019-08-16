@@ -1,7 +1,6 @@
-#cython: language_level=3
 cdef class Motor:
     cdef int _lim
-    cdef double _preference, _minStep
+    cdef double _preference, _min_step
     cdef double[::1] _pos
 
     cpdef double[::1] get_pos(self)
@@ -13,14 +12,13 @@ cdef class RadMotor(Motor):
     """ A motor system using heading radian as its internal representation
         of its direction
     """
-    cdef double _h_rad, _prev_preference
-    cdef double _target_dir
+    cdef double _h_rad, _target_dir, _prev_preference
 
     cpdef void set_preference(self, double p)
 
     cdef void _round_rad(self)
 
-    cpdef double[::1] move(self)
+    cpdef double[::1] move(self, int sig_ign=?)
 
     cpdef void rotate(self, double rad)
 
