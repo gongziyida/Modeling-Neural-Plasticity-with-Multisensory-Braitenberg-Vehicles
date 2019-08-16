@@ -1,1 +1,1 @@
-C functions
+Core functions for the classes
