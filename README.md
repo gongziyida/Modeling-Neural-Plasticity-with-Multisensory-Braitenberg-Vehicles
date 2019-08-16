@@ -54,6 +54,7 @@ The mapping between olfactory attributes and gustatory attributes should be defi
 ## Techinical Supports
 This project uses Cython and C. The most time consuming parts are either written in `core.c` or implemented by using [BLAS functions](https://en.wikipedia.org/wiki/Basic_Linear_Algebra_Subprograms) that Numpy uses. Static images such as those shown above are produced through [Networkx](https://networkx.github.io/) and Matplotlib, while real-time animation is generated using [PyQtGraph](http://pyqtgraph.org/). 
 
+<img src="/img/real_time_animation_example.png" alt="Animation example" width="600"/>
 
 An example of real-time animation.
 
