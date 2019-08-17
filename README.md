@@ -1,4 +1,6 @@
 # Modeling Neural Development with Multisensory Braitenberg Vehicles
+Ziyi Gong
+
 ## Content
 <strong> 
   
