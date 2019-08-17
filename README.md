@@ -14,6 +14,8 @@
 4. Technical Supports
 5. Acknowledgement
 6. Future Plan
+7. Possible Implementation
+
 </strong>
 
 ## 1 Introduction
@@ -86,5 +88,8 @@ Thanks Google Summer of Code (GSOC) for letting me propose this project.
 ## 6 Future Plan
 - Put the trained BV in a new, testing environment, like conducting animal testings.
   - Implement the progress saving functionality
+
+## 7 Possible Implementation
+- More complexed senses or more than two senses
 - More than 1 BV and BVs interactions
 - Another possible solution: apply genetic algorithm or other kinds to optimize the network structure
