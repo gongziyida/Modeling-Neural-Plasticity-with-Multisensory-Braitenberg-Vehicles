@@ -25,7 +25,7 @@ During its exploration, the BV associates taste with smell when both taste and s
 
 ## 2 BV Components
 ### 2.1 Olfactory System
-The olfactory system, in general, is implemented as a Li-Hopfield network, firstly proposed by Li and Hopfield in 1989 and is now still used for modeling [olfactory bulb](https://en.wikipedia.org/wiki/Olfactory_bulb). A Li-Hopfield models the dynamics of the two most common and most important cells in olfactory bulb: mitral cells and granual cells. Mitral cells are both stimulus receivers and delievers (i.e. they are responsible for both input and output) while granual cells are inhibitors to mitral cells. In reality, there are much more granual cells than mitral cells, but in this model, they are equal in amount for simplicity. In addition, mitral cells are inter-connected, therefore forming a circle or a sphere.
+The olfactory system, in general, is implemented as a Li-Hopfield network, firstly proposed by Li and Hopfield in 1989 and is now still used for modeling [olfactory bulb](https://en.wikipedia.org/wiki/Olfactory_bulb). A Li-Hopfield models the dynamics of the two most important cells in olfactory bulb: mitral cells and granual cells. Mitral cells are both stimulus receivers and delievers (i.e. they are responsible for both input and output) while granual cells are inhibitors to mitral cells. In reality, there are much more granual cells than mitral cells, but in this model, they are equal in amount for simplicity. In addition, mitral cells are inter-connected, therefore forming a circle or a sphere.
 
 <img src="/img/olf.png" alt="Li-Hopfield" width="310"/>
 
@@ -33,12 +33,12 @@ The grey dots are the mitral cells and the black are the granual cells. Red mean
 
 The Li-Hopfield network can thus be seen as a group of coupled non-linear oscillators. In short, it is able to alter its oscillatory frequencies based on changes in olfactory attributes, so it is important to "filter" the noise and identify which stimulus source the BV is approaching. The signal powers of the output are then calculated, instead of modeling a complexed afferent nerve in real nervous system.
 
-In the implementation, it is in `Layers.LiHopfield` class.
+The olfactory system is implemented in `Layers.LiHopfield` class.
 
 ### 2.2 Gustatory System
 Gustatory system is only a single layer, for taste is simply "impression" in this simulation. There is no noise involved in taste, or any other perturbation, so further processing of taste is redundant.
 
-In the implementation, it is in `Layers.Single` class.
+The gustatory system is implemented in `Layers.Single` class.
 
 ### 2.3 Associative Memory
 The associative memory, implemented as a [bidirectional associative memory (BAM)](https://en.wikipedia.org/wiki/Bidirectional_associative_memory), is where Hebbian learning happens. Rather than Hebbian rule that BAM often utilized, [Generalized Hebbian algorithm](https://en.wikipedia.org/wiki/Generalized_Hebbian_Algorithm) is used, for it is demonstrably stable. 
@@ -48,17 +48,17 @@ Notably, the learning rate should be properly set and converge to zero for accur
 
 Moreover, a depression function <img src="/formula/dep_function.png" alt="Depression function" width="150"/> is used to cancel the effect of repeatedly learning from one stimulus source and noisy data. Its positive effect was deonstrated through static testing where the BV does not move and stimuli are just feeded, yet not demoonstrated in the actual simulation
 
-In the implementation, it is in `Layers.BAM` class.
+The associative memory is implemented in `Layers.BAM` class.
 
 ### 2.4 Motor Unit
 The motor unit is radian-based. The BV moves along the heading direction whose value is between negative pi and positive pi.  When the increase in preference passes a threshold, the BV moves forward with a little offset based on the increase; when the decrease in preference passes the threshold, the BV moves backward with a little offest based on the decrease. Otherwise, it moves towards a nearby source.
 
-In the implementation, it is in `Movement.RadMotor` class.
+The motor unit is implemented in `Movement.RadMotor` class.
 
 ### 2.5 Judgement Unit
 An array of preference function should be defined before intializing `Simulation` class. The preference, the output of the judgement unit, is the sum of the output of each preference functions applied to their corresponding gustatory attributes.
 
-It is incorporated in `Simulation` class.
+The judgement unit is incorporated in `Simulation` class.
 
 ## 3 Environment
 The enviornment is realistic that olfactory stimuli decay with distances exponentially from their sources, while gustatory stimuli are sensible only when the BV is close to their sources.
