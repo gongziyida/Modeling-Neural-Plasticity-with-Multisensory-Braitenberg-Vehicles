@@ -87,3 +87,4 @@ Thanks Google Summer of Code (GSOC) for letting me propose this project.
 - Put the trained BV in a new, testing environment, like conducting animal testings.
   - Implement the progress saving functionality
 - More than 1 BV and BVs interactions
+- Another possible solution: apply genetic algorithm or other kinds to optimize the network structure
