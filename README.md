@@ -93,7 +93,7 @@ In addition, experiments were conducted using IPython and Jupyter-Notebook.
 ## 7. Acknowledgement
 Thank Dr. Bradly Alicea for mentoring and holding weekly meetings. Also thank Stefan Dvoretskii, Jessse Parent, and Ankit Gupta for giving suggestions.
 
-Thanks [Google Summer of Code](https://summerofcode.withgoogle.com) and [INCF](https://www.incf.org) for opening the topic of modeling neural development, and reviewing my proposal on that topic.
+Thanks [Google Summer of Code](https://summerofcode.withgoogle.com) and [INCF](https://www.incf.org) for opening the topic about modeling neural development, and reviewing my proposal on that topic.
 
 ## 8. Reference
 Li, Z. & Hopfield, J. J. (1989). Modeling the Olfactory Bulb and its Neural Oscillatory Processings. *BioI. Cybern.* 61, 379-392.
