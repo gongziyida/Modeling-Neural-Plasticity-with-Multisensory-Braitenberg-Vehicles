@@ -1,4 +1,4 @@
-# Modeling Neural Development with Multisensory Braitenberg Vehicles
+# Modeling Neural Plasticity with Multisensory Braitenberg Vehicles
 
 ## Content
 <strong> 
