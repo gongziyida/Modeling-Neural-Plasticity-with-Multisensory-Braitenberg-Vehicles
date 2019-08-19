@@ -50,7 +50,7 @@ The associative memory, implemented as a [bidirectional associative memory (BAM)
 
 Notably, the learning rate should be properly set and converge to zero for accuracy, but in this simulation it is a small constant, because this learning process, unlike typical machine learning with neural networks where samples are learned one by one, occurs in a space where samples are mixed and the times learning each sample is unknown (so are the orders of learning samples). It is hard to determine the initial learning rate and control the converging pace. It is also hard to avoid the effect of initial conditions if the convergence is introduced. 
 
-Moreover, a depression function <img src="/formula/dep_function.png" alt="Depression function" width="150"/> is used to cancel the effect of repeatedly learning from one stimulus source and noisy data. Its positive effect was deonstrated through static testing where the BV does not move and stimuli are just feeded, yet not demoonstrated in the actual simulation
+Moreover, a depression function <img src="/formula/dep_function.png" alt="Depression function" width="150"/> that naively imitates activity-dependent long-term depression is used to cancel the effect of repeatedly learning from one stimulus source and noisy data. Its effect was deonstrated through static testing where the BV does not move and stimuli are just feeded, yet not demoonstrated in the actual simulation
 
 The associative memory is implemented in `Layers.BAM` class.
 
