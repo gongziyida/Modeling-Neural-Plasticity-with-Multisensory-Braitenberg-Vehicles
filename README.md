@@ -1,5 +1,4 @@
 # Modeling Neural Development with Multisensory Braitenberg Vehicles
-Ziyi Gong
 
 ## Content
 <strong> 
@@ -30,7 +29,7 @@ During its exploration, the BV associates taste with smell when both taste and s
 
 ## 2. BV Components
 ### 2.1. Olfactory System
-The olfactory system, in general, is implemented as a Li-Hopfield network, firstly proposed by Li and Hopfield in 1989 and is now still used as the basis for modeling [olfactory bulb](https://en.wikipedia.org/wiki/Olfactory_bulb). A Li-Hopfield models the dynamics of two important cells in olfactory bulb: mitral cells and granual cells. Mitral cells are both stimulus receivers and delievers (i.e. they are responsible for both input and output) while granual cells are inhibitors to mitral cells. However, in reality, mitral cells are not primary receivers; what before mitral cells, the actual receptor cells and [glomeruli](https://en.wikipedia.org/wiki/Glomerulus_(olfaction)), are reduced to numerical values. There are also much more granual cells than mitral cells, but in this model, they are equal in amount for simplicity. 
+The olfactory system, in general, is implemented as a Li-Hopfield network, firstly proposed by Li and Hopfield in 1989 and is now still used as the basis for modeling [olfactory bulb](https://en.wikipedia.org/wiki/Olfactory_bulb). A Li-Hopfield models the dynamics of two important cells in olfactory bulb: mitral cells and granual cells. Mitral cells are both stimulus receivers and delievers (i.e. they are responsible for both input and output) while granual cells are inhibitors to mitral cells. However, in reality, mitral cells are not primary receivers; those function before mitral cells, the actual receptor cells and [glomeruli](https://en.wikipedia.org/wiki/Glomerulus_(olfaction)), are reduced to numerical values. There are also much more granual cells than mitral cells, but in this model, they are equal in amount for simplicity. 
 
 <img src="/img/olf.png" alt="Li-Hopfield" width="310"/>
 
