@@ -21,11 +21,11 @@
 </strong>
 
 ## 1. Introduction
-The project is to create a robust and efficient simulation of Hebbian neural development during cognition processes. 
+The project is to create a robust and efficient simulation of Hebbian plasticity in learning and memory.
 
 The simulation utilized a [Braitenberg vehicle (BV)](https://en.wikipedia.org/wiki/Braitenberg_vehicle) that possesses an olfactory system (smell), a gustatory system (taste), an associative memory, a motor unit, and a judgement unit. The BV is allowed to explore freely in an enviornment where sources of olfactory and gustatory stimuli are distributed. 
 
-During its exploration, the BV associates taste with smell when both taste and smell are sensible; when there is no taste, it recalls the taste based on its associative memory and smell received. Both sensed taste and recalled taste can produce preference that affects the BV's movement. Therefore, when the BV becomes more and more mature via association, it can avoid the unpleasant and approach the pleasant, like small animals.
+During its exploration, the BV associates taste with smell when both taste and smell are sensible; when there is no taste, it recalls the taste based on its associative memory and the smell received. Both sensed taste and recalled taste can produce preference that affects the BV's movement. When the BV becomes more and more mature via association, it can avoid the unpleasant and approach the pleasant, like small animals.
 
 ## 2. BV Components
 ### 2.1. Olfactory System
