@@ -1,7 +1,7 @@
 # Modeling Neural Plasticity with Multisensory Braitenberg Vehicles
 
 ## Content
-<strong> 
+<strong>  
   
 1. Introduction 
 2. BV Components
