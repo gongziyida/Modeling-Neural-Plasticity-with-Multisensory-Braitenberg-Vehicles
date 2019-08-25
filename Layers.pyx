@@ -87,7 +87,7 @@ cdef class Layer:
         """
         Parameters
         ----------
-        shape : array-like
+        shape : numpy.ndarray or Memoryview or Memoryview
             The numbers of neurons in each layers
         """
 
@@ -121,17 +121,15 @@ cdef class Single(Layer):
 
         Parameters
         ----------
-        I: numpy.ndarray
+        I: numpy.ndarray or Memoryview
             The sensory input
 
         Returns
         ----------
-        out: numpy.ndarray
+        out: Memoryview
             The output
         """
         return self._act_func(I)
-
-
 
 
 
@@ -309,6 +307,15 @@ cdef class LiHopfield(Layer):
     @cython.initializedcheck(False)
     @cython.cdivision(True)
     cpdef double[::1] feed(self, double[::1] I):
+        """
+        To feed the network with input
+
+        Parameters
+        ----------
+        I: numpy.ndarray or Memoryview
+            The raw input
+        """
+
         # 1D array buffer
         cdef np.ndarray[np.float64_t] one_d = \
             np.zeros(self._size, dtype=np.float64)
@@ -367,7 +374,7 @@ cdef class LiHopfield(Layer):
             if self._enable_GHA:
                 # GHA
                 # eta decreases with time and converges to zeros
-                self._eta *= 0.9
+                self._eta *= 0.995
                 # MG += eta * (xy - Lxx @ MG)
                 # GM += eta * (yx - Lyy @ GM)
                 _GHA(self._MG, self._Lxx, self._xy, self._eta, 
@@ -435,7 +442,6 @@ cdef class LiHopfield(Layer):
 
 
 
-
 cdef class BAM(Layer):
     """ Bidirectional associative memory
     """
@@ -476,6 +482,17 @@ cdef class BAM(Layer):
     @cython.wraparound(False)
     @cython.initializedcheck(False)
     cpdef void learn(self, double[::1] I1, double[::1] I2):
+        """
+        To learn two input patterns
+
+        Parameters
+        ----------
+        I1: numpy.ndarray or Memoryview
+            The raw input 1
+        I2: numpy.ndarray or Memoryview
+            The raw input 2
+        """
+
         cdef np.ndarray[np.float64_t, ndim=2] o = \
             np.zeros(self._shape.T, dtype=np.float64)
         cdef np.ndarray[np.float64_t, ndim=2] l = \
@@ -495,8 +512,8 @@ cdef class BAM(Layer):
         sq_outer(&L[0, 0], &I2[0], &I2[0], self._shape[1], LT)
 
         # GHA
-        # # eta decreases with time and converges to zeros
-        # self._eta *= 0.9
+        # eta decreases with time and converges to zeros
+        self._eta *= 0.995
         # W += eta * (O - L @ W)
         _GHA(self._W, L, O, self._eta, self._shape[1], self._shape[0])
 
@@ -513,16 +530,30 @@ cdef class BAM(Layer):
     @cython.wraparound(False)
     @cython.initializedcheck(False)
     @cython.cdivision(True)
-    cpdef double[::1] recall(self, double[::1] I):
+    cpdef double[::1] recall(self, double[::1] I1):
+        """
+        To recall the pattern corresponding to the input
+
+        Parameters
+        ----------
+        I1: numpy.ndarray or Memoryview
+            The raw input
+
+        Returns
+        ----------
+        I2: Memoryview
+            The recalled pattern
+        """
+
         cdef np.ndarray[np.float64_t] r = \
             np.zeros(self._shape[1], dtype=np.float64)
         cdef double[::1] R = r.copy(order='F')
         cdef int m = self._shape[1]
         cdef int n = self._shape[0]
 
-        # R = W @ I
+        # R = W @ I1
         blas.dgemv(&NO, &m, &n, &POS1, &self._W[0, 0], &m, 
-                    &I[0], &LD, &ZERO, &R[0], &LD)
+                    &I1[0], &LD, &ZERO, &R[0], &LD)
         # euclidean norm
         cdef double norm = blas.dnrm2(&m, &R[0], &LD)
 

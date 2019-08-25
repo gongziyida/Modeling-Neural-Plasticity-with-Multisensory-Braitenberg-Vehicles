@@ -5,7 +5,7 @@ cdef class Motor:
 
     cpdef double[::1] get_pos(self)
     
-    cpdef bint is_at(self, int[::1] target, double th=?)
+    cpdef bint is_at(self, double[::1] target, double th=?)
 
 
 cdef class RadMotor(Motor):

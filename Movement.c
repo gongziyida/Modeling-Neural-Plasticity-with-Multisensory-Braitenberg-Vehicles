@@ -1235,7 +1235,7 @@ struct __pyx_opt_args_8Movement_8RadMotor_move;
 /* "Movement.pxd":8
  *     cpdef double[::1] get_pos(self)
  * 
- *     cpdef bint is_at(self, int[::1] target, double th=?)             # <<<<<<<<<<<<<<
+ *     cpdef bint is_at(self, double[::1] target, double th=?)             # <<<<<<<<<<<<<<
  * 
  * 
  */
@@ -1368,8 +1368,8 @@ struct __pyx_memoryviewslice_obj {
  * """
  * 
  * cdef class Motor:             # <<<<<<<<<<<<<<
- * 
- *     def __init__(self, int lim, double min_step=1, double x=0, double y=0):
+ *     """ Super class
+ *     """
  */
 
 struct __pyx_vtabstruct_8Movement_Motor {
@@ -1379,7 +1379,7 @@ struct __pyx_vtabstruct_8Movement_Motor {
 static struct __pyx_vtabstruct_8Movement_Motor *__pyx_vtabptr_8Movement_Motor;
 
 
-/* "Movement.pyx":46
+/* "Movement.pyx":72
  * 
  * 
  * cdef class RadMotor(Motor):             # <<<<<<<<<<<<<<
@@ -2060,13 +2060,6 @@ static int __Pyx_ValidateAndInit_memviewslice(
 /* ObjectToMemviewSlice.proto */
 static CYTHON_INLINE __Pyx_memviewslice __Pyx_PyObject_to_MemoryviewSlice_dc_double(PyObject *, int writable_flag);
 
-/* ObjectToMemviewSlice.proto */
-static CYTHON_INLINE __Pyx_memviewslice __Pyx_PyObject_to_MemoryviewSlice_dc_int(PyObject *, int writable_flag);
-
-/* MemviewDtypeToObject.proto */
-static CYTHON_INLINE PyObject *__pyx_memview_get_int(const char *itemp);
-static CYTHON_INLINE int __pyx_memview_set_int(const char *itemp, PyObject *obj);
-
 /* CIntToPy.proto */
 static CYTHON_INLINE PyObject* __Pyx_PyInt_From_long(long value);
 
@@ -2298,7 +2291,6 @@ static void __pyx_memoryview_slice_assign_scalar(__Pyx_memviewslice *, int, size
 static void __pyx_memoryview__slice_assign_scalar(char *, Py_ssize_t *, Py_ssize_t *, int, size_t, void *); /*proto*/
 static PyObject *__pyx_unpickle_Enum__set_state(struct __pyx_MemviewEnum_obj *, PyObject *); /*proto*/
 static __Pyx_TypeInfo __Pyx_TypeInfo_double = { "double", NULL, sizeof(double), { 0 }, 0, 'R', 0, 0 };
-static __Pyx_TypeInfo __Pyx_TypeInfo_int = { "int", NULL, sizeof(int), { 0 }, 0, IS_UNSIGNED(int) ? 'U' : 'I', IS_UNSIGNED(int), 0 };
 #define __Pyx_MODULE_NAME "Movement"
 extern int __pyx_module_is_main_Movement;
 int __pyx_module_is_main_Movement = 0;
@@ -2562,7 +2554,7 @@ static PyObject *__pyx_pf_8Movement_5Motor_2get_pos(struct __pyx_obj_8Movement_M
 static PyObject *__pyx_pf_8Movement_5Motor_4is_at(struct __pyx_obj_8Movement_Motor *__pyx_v_self, __Pyx_memviewslice __pyx_v_target, double __pyx_v_th); /* proto */
 static PyObject *__pyx_pf_8Movement_5Motor_6__reduce_cython__(struct __pyx_obj_8Movement_Motor *__pyx_v_self); /* proto */
 static PyObject *__pyx_pf_8Movement_5Motor_8__setstate_cython__(struct __pyx_obj_8Movement_Motor *__pyx_v_self, PyObject *__pyx_v___pyx_state); /* proto */
-static int __pyx_pf_8Movement_8RadMotor___init__(struct __pyx_obj_8Movement_RadMotor *__pyx_v_self, int __pyx_v_lim, double __pyx_v_h_rad, int __pyx_v_min_step, double __pyx_v_x, double __pyx_v_y); /* proto */
+static int __pyx_pf_8Movement_8RadMotor___init__(struct __pyx_obj_8Movement_RadMotor *__pyx_v_self, int __pyx_v_lim, double __pyx_v_h_rad, double __pyx_v_min_step, double __pyx_v_x, double __pyx_v_y); /* proto */
 static PyObject *__pyx_pf_8Movement_8RadMotor_2get_heading_rad(struct __pyx_obj_8Movement_RadMotor *__pyx_v_self); /* proto */
 static PyObject *__pyx_pf_8Movement_8RadMotor_4set_preference(struct __pyx_obj_8Movement_RadMotor *__pyx_v_self, double __pyx_v_p); /* proto */
 static PyObject *__pyx_pf_8Movement_8RadMotor_6move(struct __pyx_obj_8Movement_RadMotor *__pyx_v_self, int __pyx_v_sig_ign); /* proto */
@@ -2666,16 +2658,20 @@ static PyObject *__pyx_codeobj__29;
 static PyObject *__pyx_codeobj__36;
 /* Late includes */
 
-/* "Movement.pyx":23
- * cdef class Motor:
+/* "Movement.pyx":25
+ *     """
  * 
  *     def __init__(self, int lim, double min_step=1, double x=0, double y=0):             # <<<<<<<<<<<<<<
- *         self._lim = lim
- *         self._min_step = min_step
+ *         """
+ *         Parameters
  */
 
 /* Python wrapper */
 static int __pyx_pw_8Movement_5Motor_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static char __pyx_doc_8Movement_5Motor___init__[] = "\n        Parameters\n        ----------\n        lim : int\n            The space limit\n        min_step: double\n            The min step length the BV takes\n        x: double\n            BV's starting x cordination\n        y: double\n            BV's starting y cordination\n        ";
+#if CYTHON_COMPILING_IN_CPYTHON
+struct wrapperbase __pyx_wrapperbase_8Movement_5Motor___init__;
+#endif
 static int __pyx_pw_8Movement_5Motor_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   int __pyx_v_lim;
   double __pyx_v_min_step;
@@ -2727,7 +2723,7 @@ static int __pyx_pw_8Movement_5Motor_1__init__(PyObject *__pyx_v_self, PyObject 
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "__init__") < 0)) __PYX_ERR(0, 23, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "__init__") < 0)) __PYX_ERR(0, 25, __pyx_L3_error)
       }
     } else {
       switch (PyTuple_GET_SIZE(__pyx_args)) {
@@ -2742,26 +2738,26 @@ static int __pyx_pw_8Movement_5Motor_1__init__(PyObject *__pyx_v_self, PyObject 
         default: goto __pyx_L5_argtuple_error;
       }
     }
-    __pyx_v_lim = __Pyx_PyInt_As_int(values[0]); if (unlikely((__pyx_v_lim == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 23, __pyx_L3_error)
+    __pyx_v_lim = __Pyx_PyInt_As_int(values[0]); if (unlikely((__pyx_v_lim == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 25, __pyx_L3_error)
     if (values[1]) {
-      __pyx_v_min_step = __pyx_PyFloat_AsDouble(values[1]); if (unlikely((__pyx_v_min_step == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 23, __pyx_L3_error)
+      __pyx_v_min_step = __pyx_PyFloat_AsDouble(values[1]); if (unlikely((__pyx_v_min_step == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 25, __pyx_L3_error)
     } else {
       __pyx_v_min_step = ((double)1.0);
     }
     if (values[2]) {
-      __pyx_v_x = __pyx_PyFloat_AsDouble(values[2]); if (unlikely((__pyx_v_x == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 23, __pyx_L3_error)
+      __pyx_v_x = __pyx_PyFloat_AsDouble(values[2]); if (unlikely((__pyx_v_x == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 25, __pyx_L3_error)
     } else {
       __pyx_v_x = ((double)0.0);
     }
     if (values[3]) {
-      __pyx_v_y = __pyx_PyFloat_AsDouble(values[3]); if (unlikely((__pyx_v_y == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 23, __pyx_L3_error)
+      __pyx_v_y = __pyx_PyFloat_AsDouble(values[3]); if (unlikely((__pyx_v_y == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 25, __pyx_L3_error)
     } else {
       __pyx_v_y = ((double)0.0);
     }
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("__init__", 0, 1, 4, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 23, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("__init__", 0, 1, 4, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 25, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("Movement.Motor.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -2785,17 +2781,17 @@ static int __pyx_pf_8Movement_5Motor___init__(struct __pyx_obj_8Movement_Motor *
   __Pyx_memviewslice __pyx_t_6 = { 0, 0, { 0 }, { 0 }, { 0 } };
   __Pyx_RefNannySetupContext("__init__", 0);
 
-  /* "Movement.pyx":24
+  /* "Movement.pyx":39
+ *         """
  * 
- *     def __init__(self, int lim, double min_step=1, double x=0, double y=0):
  *         self._lim = lim             # <<<<<<<<<<<<<<
  *         self._min_step = min_step
  *         self._pos = np.array((x, y))
  */
   __pyx_v_self->_lim = __pyx_v_lim;
 
-  /* "Movement.pyx":25
- *     def __init__(self, int lim, double min_step=1, double x=0, double y=0):
+  /* "Movement.pyx":40
+ * 
  *         self._lim = lim
  *         self._min_step = min_step             # <<<<<<<<<<<<<<
  *         self._pos = np.array((x, y))
@@ -2803,23 +2799,23 @@ static int __pyx_pf_8Movement_5Motor___init__(struct __pyx_obj_8Movement_Motor *
  */
   __pyx_v_self->_min_step = __pyx_v_min_step;
 
-  /* "Movement.pyx":26
+  /* "Movement.pyx":41
  *         self._lim = lim
  *         self._min_step = min_step
  *         self._pos = np.array((x, y))             # <<<<<<<<<<<<<<
  *         self._preference = 0
  * 
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 26, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 41, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_array); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 26, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_array); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 41, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_2 = PyFloat_FromDouble(__pyx_v_x); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 26, __pyx_L1_error)
+  __pyx_t_2 = PyFloat_FromDouble(__pyx_v_x); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 41, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_4 = PyFloat_FromDouble(__pyx_v_y); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 26, __pyx_L1_error)
+  __pyx_t_4 = PyFloat_FromDouble(__pyx_v_y); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 41, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_5 = PyTuple_New(2); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 26, __pyx_L1_error)
+  __pyx_t_5 = PyTuple_New(2); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 41, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_GIVEREF(__pyx_t_2);
   PyTuple_SET_ITEM(__pyx_t_5, 0, __pyx_t_2);
@@ -2840,17 +2836,17 @@ static int __pyx_pf_8Movement_5Motor___init__(struct __pyx_obj_8Movement_Motor *
   __pyx_t_1 = (__pyx_t_4) ? __Pyx_PyObject_Call2Args(__pyx_t_3, __pyx_t_4, __pyx_t_5) : __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_5);
   __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 26, __pyx_L1_error)
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 41, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_6 = __Pyx_PyObject_to_MemoryviewSlice_dc_double(__pyx_t_1, PyBUF_WRITABLE); if (unlikely(!__pyx_t_6.memview)) __PYX_ERR(0, 26, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_PyObject_to_MemoryviewSlice_dc_double(__pyx_t_1, PyBUF_WRITABLE); if (unlikely(!__pyx_t_6.memview)) __PYX_ERR(0, 41, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __PYX_XDEC_MEMVIEW(&__pyx_v_self->_pos, 0);
   __pyx_v_self->_pos = __pyx_t_6;
   __pyx_t_6.memview = NULL;
   __pyx_t_6.data = NULL;
 
-  /* "Movement.pyx":27
+  /* "Movement.pyx":42
  *         self._min_step = min_step
  *         self._pos = np.array((x, y))
  *         self._preference = 0             # <<<<<<<<<<<<<<
@@ -2859,12 +2855,12 @@ static int __pyx_pf_8Movement_5Motor___init__(struct __pyx_obj_8Movement_Motor *
  */
   __pyx_v_self->_preference = 0.0;
 
-  /* "Movement.pyx":23
- * cdef class Motor:
+  /* "Movement.pyx":25
+ *     """
  * 
  *     def __init__(self, int lim, double min_step=1, double x=0, double y=0):             # <<<<<<<<<<<<<<
- *         self._lim = lim
- *         self._min_step = min_step
+ *         """
+ *         Parameters
  */
 
   /* function exit code */
@@ -2884,7 +2880,7 @@ static int __pyx_pf_8Movement_5Motor___init__(struct __pyx_obj_8Movement_Motor *
   return __pyx_r;
 }
 
-/* "Movement.pyx":32
+/* "Movement.pyx":47
  *     @cython.wraparound(False)
  *     @cython.initializedcheck(False)
  *     cpdef double[::1] get_pos(self):             # <<<<<<<<<<<<<<
@@ -2911,7 +2907,7 @@ static __Pyx_memviewslice __pyx_f_8Movement_5Motor_get_pos(struct __pyx_obj_8Mov
     if (unlikely(!__Pyx_object_dict_version_matches(((PyObject *)__pyx_v_self), __pyx_tp_dict_version, __pyx_obj_dict_version))) {
       PY_UINT64_T __pyx_type_dict_guard = __Pyx_get_tp_dict_version(((PyObject *)__pyx_v_self));
       #endif
-      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_get_pos); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 32, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_get_pos); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 47, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       if (!PyCFunction_Check(__pyx_t_1) || (PyCFunction_GET_FUNCTION(__pyx_t_1) != (PyCFunction)(void*)__pyx_pw_8Movement_5Motor_3get_pos)) {
         __Pyx_INCREF(__pyx_t_1);
@@ -2927,10 +2923,10 @@ static __Pyx_memviewslice __pyx_f_8Movement_5Motor_get_pos(struct __pyx_obj_8Mov
         }
         __pyx_t_2 = (__pyx_t_4) ? __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_4) : __Pyx_PyObject_CallNoArg(__pyx_t_3);
         __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
-        if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 32, __pyx_L1_error)
+        if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 47, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_2);
         __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-        __pyx_t_5 = __Pyx_PyObject_to_MemoryviewSlice_dc_double(__pyx_t_2, PyBUF_WRITABLE); if (unlikely(!__pyx_t_5.memview)) __PYX_ERR(0, 32, __pyx_L1_error)
+        __pyx_t_5 = __Pyx_PyObject_to_MemoryviewSlice_dc_double(__pyx_t_2, PyBUF_WRITABLE); if (unlikely(!__pyx_t_5.memview)) __PYX_ERR(0, 47, __pyx_L1_error)
         __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
         __pyx_r = __pyx_t_5;
         __pyx_t_5.memview = NULL;
@@ -2951,7 +2947,7 @@ static __Pyx_memviewslice __pyx_f_8Movement_5Motor_get_pos(struct __pyx_obj_8Mov
     #endif
   }
 
-  /* "Movement.pyx":33
+  /* "Movement.pyx":48
  *     @cython.initializedcheck(False)
  *     cpdef double[::1] get_pos(self):
  *         return self._pos             # <<<<<<<<<<<<<<
@@ -2962,7 +2958,7 @@ static __Pyx_memviewslice __pyx_f_8Movement_5Motor_get_pos(struct __pyx_obj_8Mov
   __pyx_r = __pyx_v_self->_pos;
   goto __pyx_L0;
 
-  /* "Movement.pyx":32
+  /* "Movement.pyx":47
  *     @cython.wraparound(False)
  *     @cython.initializedcheck(False)
  *     cpdef double[::1] get_pos(self):             # <<<<<<<<<<<<<<
@@ -3010,8 +3006,8 @@ static PyObject *__pyx_pf_8Movement_5Motor_2get_pos(struct __pyx_obj_8Movement_M
   PyObject *__pyx_t_2 = NULL;
   __Pyx_RefNannySetupContext("get_pos", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __pyx_f_8Movement_5Motor_get_pos(__pyx_v_self, 1); if (unlikely(!__pyx_t_1.memview)) __PYX_ERR(0, 32, __pyx_L1_error)
-  __pyx_t_2 = __pyx_memoryview_fromslice(__pyx_t_1, 1, (PyObject *(*)(char *)) __pyx_memview_get_double, (int (*)(char *, PyObject *)) __pyx_memview_set_double, 0);; if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 32, __pyx_L1_error)
+  __pyx_t_1 = __pyx_f_8Movement_5Motor_get_pos(__pyx_v_self, 1); if (unlikely(!__pyx_t_1.memview)) __PYX_ERR(0, 47, __pyx_L1_error)
+  __pyx_t_2 = __pyx_memoryview_fromslice(__pyx_t_1, 1, (PyObject *(*)(char *)) __pyx_memview_get_double, (int (*)(char *, PyObject *)) __pyx_memview_set_double, 0);; if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 47, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __PYX_XDEC_MEMVIEW(&__pyx_t_1, 1);
   __pyx_t_1.memview = NULL;
@@ -3032,12 +3028,12 @@ static PyObject *__pyx_pf_8Movement_5Motor_2get_pos(struct __pyx_obj_8Movement_M
   return __pyx_r;
 }
 
-/* "Movement.pyx":40
+/* "Movement.pyx":55
  *     @cython.wraparound(False)
  *     @cython.initializedcheck(False)
- *     cpdef bint is_at(self, int[::1] target, double th=0):             # <<<<<<<<<<<<<<
- *         dist = sqrt((self._pos[0] - target[0])**2 + \
- *                     (self._pos[1] - target[1])**2)
+ *     cpdef bint is_at(self, double[::1] target, double th=0):             # <<<<<<<<<<<<<<
+ *         """
+ *         To check if the BV is at the target position
  */
 
 static PyObject *__pyx_pw_8Movement_5Motor_5is_at(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
@@ -3074,12 +3070,12 @@ static int __pyx_f_8Movement_5Motor_is_at(struct __pyx_obj_8Movement_Motor *__py
     if (unlikely(!__Pyx_object_dict_version_matches(((PyObject *)__pyx_v_self), __pyx_tp_dict_version, __pyx_obj_dict_version))) {
       PY_UINT64_T __pyx_type_dict_guard = __Pyx_get_tp_dict_version(((PyObject *)__pyx_v_self));
       #endif
-      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_is_at); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 40, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_is_at); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 55, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       if (!PyCFunction_Check(__pyx_t_1) || (PyCFunction_GET_FUNCTION(__pyx_t_1) != (PyCFunction)(void*)__pyx_pw_8Movement_5Motor_5is_at)) {
-        __pyx_t_3 = __pyx_memoryview_fromslice(__pyx_v_target, 1, (PyObject *(*)(char *)) __pyx_memview_get_int, (int (*)(char *, PyObject *)) __pyx_memview_set_int, 0);; if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 40, __pyx_L1_error)
+        __pyx_t_3 = __pyx_memoryview_fromslice(__pyx_v_target, 1, (PyObject *(*)(char *)) __pyx_memview_get_double, (int (*)(char *, PyObject *)) __pyx_memview_set_double, 0);; if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 55, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_3);
-        __pyx_t_4 = PyFloat_FromDouble(__pyx_v_th); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 40, __pyx_L1_error)
+        __pyx_t_4 = PyFloat_FromDouble(__pyx_v_th); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 55, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_4);
         __Pyx_INCREF(__pyx_t_1);
         __pyx_t_5 = __pyx_t_1; __pyx_t_6 = NULL;
@@ -3097,7 +3093,7 @@ static int __pyx_f_8Movement_5Motor_is_at(struct __pyx_obj_8Movement_Motor *__py
         #if CYTHON_FAST_PYCALL
         if (PyFunction_Check(__pyx_t_5)) {
           PyObject *__pyx_temp[3] = {__pyx_t_6, __pyx_t_3, __pyx_t_4};
-          __pyx_t_2 = __Pyx_PyFunction_FastCall(__pyx_t_5, __pyx_temp+1-__pyx_t_7, 2+__pyx_t_7); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 40, __pyx_L1_error)
+          __pyx_t_2 = __Pyx_PyFunction_FastCall(__pyx_t_5, __pyx_temp+1-__pyx_t_7, 2+__pyx_t_7); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 55, __pyx_L1_error)
           __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
           __Pyx_GOTREF(__pyx_t_2);
           __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
@@ -3107,7 +3103,7 @@ static int __pyx_f_8Movement_5Motor_is_at(struct __pyx_obj_8Movement_Motor *__py
         #if CYTHON_FAST_PYCCALL
         if (__Pyx_PyFastCFunction_Check(__pyx_t_5)) {
           PyObject *__pyx_temp[3] = {__pyx_t_6, __pyx_t_3, __pyx_t_4};
-          __pyx_t_2 = __Pyx_PyCFunction_FastCall(__pyx_t_5, __pyx_temp+1-__pyx_t_7, 2+__pyx_t_7); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 40, __pyx_L1_error)
+          __pyx_t_2 = __Pyx_PyCFunction_FastCall(__pyx_t_5, __pyx_temp+1-__pyx_t_7, 2+__pyx_t_7); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 55, __pyx_L1_error)
           __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
           __Pyx_GOTREF(__pyx_t_2);
           __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
@@ -3115,7 +3111,7 @@ static int __pyx_f_8Movement_5Motor_is_at(struct __pyx_obj_8Movement_Motor *__py
         } else
         #endif
         {
-          __pyx_t_8 = PyTuple_New(2+__pyx_t_7); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 40, __pyx_L1_error)
+          __pyx_t_8 = PyTuple_New(2+__pyx_t_7); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 55, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_8);
           if (__pyx_t_6) {
             __Pyx_GIVEREF(__pyx_t_6); PyTuple_SET_ITEM(__pyx_t_8, 0, __pyx_t_6); __pyx_t_6 = NULL;
@@ -3126,12 +3122,12 @@ static int __pyx_f_8Movement_5Motor_is_at(struct __pyx_obj_8Movement_Motor *__py
           PyTuple_SET_ITEM(__pyx_t_8, 1+__pyx_t_7, __pyx_t_4);
           __pyx_t_3 = 0;
           __pyx_t_4 = 0;
-          __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_5, __pyx_t_8, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 40, __pyx_L1_error)
+          __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_5, __pyx_t_8, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 55, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_2);
           __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
         }
         __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-        __pyx_t_9 = __Pyx_PyObject_IsTrue(__pyx_t_2); if (unlikely((__pyx_t_9 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 40, __pyx_L1_error)
+        __pyx_t_9 = __Pyx_PyObject_IsTrue(__pyx_t_2); if (unlikely((__pyx_t_9 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 55, __pyx_L1_error)
         __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
         __pyx_r = __pyx_t_9;
         __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
@@ -3150,9 +3146,9 @@ static int __pyx_f_8Movement_5Motor_is_at(struct __pyx_obj_8Movement_Motor *__py
     #endif
   }
 
-  /* "Movement.pyx":41
- *     @cython.initializedcheck(False)
- *     cpdef bint is_at(self, int[::1] target, double th=0):
+  /* "Movement.pyx":67
+ *         """
+ * 
  *         dist = sqrt((self._pos[0] - target[0])**2 + \             # <<<<<<<<<<<<<<
  *                     (self._pos[1] - target[1])**2)
  *         return dist <= th
@@ -3160,8 +3156,8 @@ static int __pyx_f_8Movement_5Motor_is_at(struct __pyx_obj_8Movement_Motor *__py
   __pyx_t_10 = 0;
   __pyx_t_11 = 0;
 
-  /* "Movement.pyx":42
- *     cpdef bint is_at(self, int[::1] target, double th=0):
+  /* "Movement.pyx":68
+ * 
  *         dist = sqrt((self._pos[0] - target[0])**2 + \
  *                     (self._pos[1] - target[1])**2)             # <<<<<<<<<<<<<<
  *         return dist <= th
@@ -3170,16 +3166,16 @@ static int __pyx_f_8Movement_5Motor_is_at(struct __pyx_obj_8Movement_Motor *__py
   __pyx_t_12 = 1;
   __pyx_t_13 = 1;
 
-  /* "Movement.pyx":41
- *     @cython.initializedcheck(False)
- *     cpdef bint is_at(self, int[::1] target, double th=0):
+  /* "Movement.pyx":67
+ *         """
+ * 
  *         dist = sqrt((self._pos[0] - target[0])**2 + \             # <<<<<<<<<<<<<<
  *                     (self._pos[1] - target[1])**2)
  *         return dist <= th
  */
-  __pyx_v_dist = sqrt((pow(((*((double *) ( /* dim=0 */ ((char *) (((double *) __pyx_v_self->_pos.data) + __pyx_t_10)) ))) - (*((int *) ( /* dim=0 */ ((char *) (((int *) __pyx_v_target.data) + __pyx_t_11)) )))), 2.0) + pow(((*((double *) ( /* dim=0 */ ((char *) (((double *) __pyx_v_self->_pos.data) + __pyx_t_12)) ))) - (*((int *) ( /* dim=0 */ ((char *) (((int *) __pyx_v_target.data) + __pyx_t_13)) )))), 2.0)));
+  __pyx_v_dist = sqrt((pow(((*((double *) ( /* dim=0 */ ((char *) (((double *) __pyx_v_self->_pos.data) + __pyx_t_10)) ))) - (*((double *) ( /* dim=0 */ ((char *) (((double *) __pyx_v_target.data) + __pyx_t_11)) )))), 2.0) + pow(((*((double *) ( /* dim=0 */ ((char *) (((double *) __pyx_v_self->_pos.data) + __pyx_t_12)) ))) - (*((double *) ( /* dim=0 */ ((char *) (((double *) __pyx_v_target.data) + __pyx_t_13)) )))), 2.0)));
 
-  /* "Movement.pyx":43
+  /* "Movement.pyx":69
  *         dist = sqrt((self._pos[0] - target[0])**2 + \
  *                     (self._pos[1] - target[1])**2)
  *         return dist <= th             # <<<<<<<<<<<<<<
@@ -3189,12 +3185,12 @@ static int __pyx_f_8Movement_5Motor_is_at(struct __pyx_obj_8Movement_Motor *__py
   __pyx_r = (__pyx_v_dist <= __pyx_v_th);
   goto __pyx_L0;
 
-  /* "Movement.pyx":40
+  /* "Movement.pyx":55
  *     @cython.wraparound(False)
  *     @cython.initializedcheck(False)
- *     cpdef bint is_at(self, int[::1] target, double th=0):             # <<<<<<<<<<<<<<
- *         dist = sqrt((self._pos[0] - target[0])**2 + \
- *                     (self._pos[1] - target[1])**2)
+ *     cpdef bint is_at(self, double[::1] target, double th=0):             # <<<<<<<<<<<<<<
+ *         """
+ *         To check if the BV is at the target position
  */
 
   /* function exit code */
@@ -3215,6 +3211,7 @@ static int __pyx_f_8Movement_5Motor_is_at(struct __pyx_obj_8Movement_Motor *__py
 
 /* Python wrapper */
 static PyObject *__pyx_pw_8Movement_5Motor_5is_at(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static char __pyx_doc_8Movement_5Motor_4is_at[] = "\n        To check if the BV is at the target position\n\n        Parameters\n        ----------\n        target: np.ndarray or Memoryview\n            The target to check\n        th: double\n            The threshold for determining if the BV is at the target position\n        ";
 static PyObject *__pyx_pw_8Movement_5Motor_5is_at(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   __Pyx_memviewslice __pyx_v_target = { 0, 0, { 0 }, { 0 }, { 0 } };
   double __pyx_v_th;
@@ -3248,7 +3245,7 @@ static PyObject *__pyx_pw_8Movement_5Motor_5is_at(PyObject *__pyx_v_self, PyObje
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "is_at") < 0)) __PYX_ERR(0, 40, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "is_at") < 0)) __PYX_ERR(0, 55, __pyx_L3_error)
       }
     } else {
       switch (PyTuple_GET_SIZE(__pyx_args)) {
@@ -3259,16 +3256,16 @@ static PyObject *__pyx_pw_8Movement_5Motor_5is_at(PyObject *__pyx_v_self, PyObje
         default: goto __pyx_L5_argtuple_error;
       }
     }
-    __pyx_v_target = __Pyx_PyObject_to_MemoryviewSlice_dc_int(values[0], PyBUF_WRITABLE); if (unlikely(!__pyx_v_target.memview)) __PYX_ERR(0, 40, __pyx_L3_error)
+    __pyx_v_target = __Pyx_PyObject_to_MemoryviewSlice_dc_double(values[0], PyBUF_WRITABLE); if (unlikely(!__pyx_v_target.memview)) __PYX_ERR(0, 55, __pyx_L3_error)
     if (values[1]) {
-      __pyx_v_th = __pyx_PyFloat_AsDouble(values[1]); if (unlikely((__pyx_v_th == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 40, __pyx_L3_error)
+      __pyx_v_th = __pyx_PyFloat_AsDouble(values[1]); if (unlikely((__pyx_v_th == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 55, __pyx_L3_error)
     } else {
       __pyx_v_th = ((double)0.0);
     }
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("is_at", 0, 1, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 40, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("is_at", 0, 1, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 55, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("Movement.Motor.is_at", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -3292,7 +3289,7 @@ static PyObject *__pyx_pf_8Movement_5Motor_4is_at(struct __pyx_obj_8Movement_Mot
   __pyx_t_2.__pyx_n = 1;
   __pyx_t_2.th = __pyx_v_th;
   __pyx_t_1 = __pyx_vtabptr_8Movement_Motor->is_at(__pyx_v_self, __pyx_v_target, 1, &__pyx_t_2); 
-  __pyx_t_3 = __Pyx_PyBool_FromLong(__pyx_t_1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 40, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyBool_FromLong(__pyx_t_1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 55, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __pyx_r = __pyx_t_3;
   __pyx_t_3 = 0;
@@ -3618,24 +3615,24 @@ static PyObject *__pyx_pf_8Movement_5Motor_8__setstate_cython__(struct __pyx_obj
   return __pyx_r;
 }
 
-/* "Movement.pyx":51
+/* "Movement.pyx":77
  *     """
  * 
- *     def __init__(self, int lim, double h_rad=0, int min_step=1, double x=0,             # <<<<<<<<<<<<<<
+ *     def __init__(self, int lim, double h_rad=0, double min_step=1, double x=0,             # <<<<<<<<<<<<<<
  *                         double y=0):
  *         """
  */
 
 /* Python wrapper */
 static int __pyx_pw_8Movement_8RadMotor_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_8Movement_8RadMotor___init__[] = "\n        Parameters\n        ----------\n        lim: int\n            The space limit\n        h_rad: float\n            The heading direction, in radian\n        min_step: int\n            The min step length the BV takes\n        x: float\n            BV's starting x cordination\n        y: float\n            BV's starting y cordination\n        ";
+static char __pyx_doc_8Movement_8RadMotor___init__[] = "\n        Parameters\n        ----------\n        lim: int\n            The space limit\n        h_rad: float\n            The heading direction, in radian\n        min_step: double\n            The min step length the BV takes\n        x: float\n            BV's starting x cordination\n        y: float\n            BV's starting y cordination\n        ";
 #if CYTHON_COMPILING_IN_CPYTHON
 struct wrapperbase __pyx_wrapperbase_8Movement_8RadMotor___init__;
 #endif
 static int __pyx_pw_8Movement_8RadMotor_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   int __pyx_v_lim;
   double __pyx_v_h_rad;
-  int __pyx_v_min_step;
+  double __pyx_v_min_step;
   double __pyx_v_x;
   double __pyx_v_y;
   int __pyx_r;
@@ -3692,7 +3689,7 @@ static int __pyx_pw_8Movement_8RadMotor_1__init__(PyObject *__pyx_v_self, PyObje
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "__init__") < 0)) __PYX_ERR(0, 51, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "__init__") < 0)) __PYX_ERR(0, 77, __pyx_L3_error)
       }
     } else {
       switch (PyTuple_GET_SIZE(__pyx_args)) {
@@ -3709,31 +3706,31 @@ static int __pyx_pw_8Movement_8RadMotor_1__init__(PyObject *__pyx_v_self, PyObje
         default: goto __pyx_L5_argtuple_error;
       }
     }
-    __pyx_v_lim = __Pyx_PyInt_As_int(values[0]); if (unlikely((__pyx_v_lim == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 51, __pyx_L3_error)
+    __pyx_v_lim = __Pyx_PyInt_As_int(values[0]); if (unlikely((__pyx_v_lim == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 77, __pyx_L3_error)
     if (values[1]) {
-      __pyx_v_h_rad = __pyx_PyFloat_AsDouble(values[1]); if (unlikely((__pyx_v_h_rad == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 51, __pyx_L3_error)
+      __pyx_v_h_rad = __pyx_PyFloat_AsDouble(values[1]); if (unlikely((__pyx_v_h_rad == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 77, __pyx_L3_error)
     } else {
       __pyx_v_h_rad = ((double)0.0);
     }
     if (values[2]) {
-      __pyx_v_min_step = __Pyx_PyInt_As_int(values[2]); if (unlikely((__pyx_v_min_step == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 51, __pyx_L3_error)
+      __pyx_v_min_step = __pyx_PyFloat_AsDouble(values[2]); if (unlikely((__pyx_v_min_step == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 77, __pyx_L3_error)
     } else {
-      __pyx_v_min_step = ((int)1);
+      __pyx_v_min_step = ((double)1.0);
     }
     if (values[3]) {
-      __pyx_v_x = __pyx_PyFloat_AsDouble(values[3]); if (unlikely((__pyx_v_x == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 51, __pyx_L3_error)
+      __pyx_v_x = __pyx_PyFloat_AsDouble(values[3]); if (unlikely((__pyx_v_x == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 77, __pyx_L3_error)
     } else {
       __pyx_v_x = ((double)0.0);
     }
     if (values[4]) {
-      __pyx_v_y = __pyx_PyFloat_AsDouble(values[4]); if (unlikely((__pyx_v_y == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 52, __pyx_L3_error)
+      __pyx_v_y = __pyx_PyFloat_AsDouble(values[4]); if (unlikely((__pyx_v_y == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 78, __pyx_L3_error)
     } else {
       __pyx_v_y = ((double)0.0);
     }
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("__init__", 0, 1, 5, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 51, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("__init__", 0, 1, 5, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 77, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("Movement.RadMotor.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -3746,7 +3743,7 @@ static int __pyx_pw_8Movement_8RadMotor_1__init__(PyObject *__pyx_v_self, PyObje
   return __pyx_r;
 }
 
-static int __pyx_pf_8Movement_8RadMotor___init__(struct __pyx_obj_8Movement_RadMotor *__pyx_v_self, int __pyx_v_lim, double __pyx_v_h_rad, int __pyx_v_min_step, double __pyx_v_x, double __pyx_v_y) {
+static int __pyx_pf_8Movement_8RadMotor___init__(struct __pyx_obj_8Movement_RadMotor *__pyx_v_self, int __pyx_v_lim, double __pyx_v_h_rad, double __pyx_v_min_step, double __pyx_v_x, double __pyx_v_y) {
   int __pyx_r;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -3760,14 +3757,14 @@ static int __pyx_pf_8Movement_8RadMotor___init__(struct __pyx_obj_8Movement_RadM
   PyObject *__pyx_t_9 = NULL;
   __Pyx_RefNannySetupContext("__init__", 0);
 
-  /* "Movement.pyx":68
+  /* "Movement.pyx":94
  *         """
  * 
  *         super().__init__(lim, min_step, x, y)             # <<<<<<<<<<<<<<
  * 
  *         # the heading angle in radian
  */
-  __pyx_t_2 = PyTuple_New(2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 68, __pyx_L1_error)
+  __pyx_t_2 = PyTuple_New(2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 94, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_INCREF(((PyObject *)__pyx_ptype_8Movement_RadMotor));
   __Pyx_GIVEREF(((PyObject *)__pyx_ptype_8Movement_RadMotor));
@@ -3775,19 +3772,19 @@ static int __pyx_pf_8Movement_8RadMotor___init__(struct __pyx_obj_8Movement_RadM
   __Pyx_INCREF(((PyObject *)__pyx_v_self));
   __Pyx_GIVEREF(((PyObject *)__pyx_v_self));
   PyTuple_SET_ITEM(__pyx_t_2, 1, ((PyObject *)__pyx_v_self));
-  __pyx_t_3 = __Pyx_PyObject_Call(__pyx_builtin_super, __pyx_t_2, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 68, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_Call(__pyx_builtin_super, __pyx_t_2, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 94, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_init); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 68, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_init); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 94, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_3 = __Pyx_PyInt_From_int(__pyx_v_lim); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 68, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyInt_From_int(__pyx_v_lim); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 94, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_4 = __Pyx_PyInt_From_int(__pyx_v_min_step); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 68, __pyx_L1_error)
+  __pyx_t_4 = PyFloat_FromDouble(__pyx_v_min_step); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 94, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_5 = PyFloat_FromDouble(__pyx_v_x); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 68, __pyx_L1_error)
+  __pyx_t_5 = PyFloat_FromDouble(__pyx_v_x); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 94, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
-  __pyx_t_6 = PyFloat_FromDouble(__pyx_v_y); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 68, __pyx_L1_error)
+  __pyx_t_6 = PyFloat_FromDouble(__pyx_v_y); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 94, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
   __pyx_t_7 = NULL;
   __pyx_t_8 = 0;
@@ -3804,7 +3801,7 @@ static int __pyx_pf_8Movement_8RadMotor___init__(struct __pyx_obj_8Movement_RadM
   #if CYTHON_FAST_PYCALL
   if (PyFunction_Check(__pyx_t_2)) {
     PyObject *__pyx_temp[5] = {__pyx_t_7, __pyx_t_3, __pyx_t_4, __pyx_t_5, __pyx_t_6};
-    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_8, 4+__pyx_t_8); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 68, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_8, 4+__pyx_t_8); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 94, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_7); __pyx_t_7 = 0;
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
@@ -3816,7 +3813,7 @@ static int __pyx_pf_8Movement_8RadMotor___init__(struct __pyx_obj_8Movement_RadM
   #if CYTHON_FAST_PYCCALL
   if (__Pyx_PyFastCFunction_Check(__pyx_t_2)) {
     PyObject *__pyx_temp[5] = {__pyx_t_7, __pyx_t_3, __pyx_t_4, __pyx_t_5, __pyx_t_6};
-    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_8, 4+__pyx_t_8); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 68, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_8, 4+__pyx_t_8); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 94, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_7); __pyx_t_7 = 0;
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
@@ -3826,7 +3823,7 @@ static int __pyx_pf_8Movement_8RadMotor___init__(struct __pyx_obj_8Movement_RadM
   } else
   #endif
   {
-    __pyx_t_9 = PyTuple_New(4+__pyx_t_8); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 68, __pyx_L1_error)
+    __pyx_t_9 = PyTuple_New(4+__pyx_t_8); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 94, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_9);
     if (__pyx_t_7) {
       __Pyx_GIVEREF(__pyx_t_7); PyTuple_SET_ITEM(__pyx_t_9, 0, __pyx_t_7); __pyx_t_7 = NULL;
@@ -3843,14 +3840,14 @@ static int __pyx_pf_8Movement_8RadMotor___init__(struct __pyx_obj_8Movement_RadM
     __pyx_t_4 = 0;
     __pyx_t_5 = 0;
     __pyx_t_6 = 0;
-    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_9, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 68, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_9, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 94, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
   }
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "Movement.pyx":71
+  /* "Movement.pyx":97
  * 
  *         # the heading angle in radian
  *         self._h_rad = h_rad             # <<<<<<<<<<<<<<
@@ -3859,7 +3856,7 @@ static int __pyx_pf_8Movement_8RadMotor___init__(struct __pyx_obj_8Movement_RadM
  */
   __pyx_v_self->_h_rad = __pyx_v_h_rad;
 
-  /* "Movement.pyx":74
+  /* "Movement.pyx":100
  * 
  *         # the previous preference
  *         self._prev_preference = 0             # <<<<<<<<<<<<<<
@@ -3868,7 +3865,7 @@ static int __pyx_pf_8Movement_8RadMotor___init__(struct __pyx_obj_8Movement_RadM
  */
   __pyx_v_self->_prev_preference = 0.0;
 
-  /* "Movement.pyx":77
+  /* "Movement.pyx":103
  * 
  *         # the direction of the target, in radian
  *         self._target_dir = 0             # <<<<<<<<<<<<<<
@@ -3877,10 +3874,10 @@ static int __pyx_pf_8Movement_8RadMotor___init__(struct __pyx_obj_8Movement_RadM
  */
   __pyx_v_self->_target_dir = 0.0;
 
-  /* "Movement.pyx":51
+  /* "Movement.pyx":77
  *     """
  * 
- *     def __init__(self, int lim, double h_rad=0, int min_step=1, double x=0,             # <<<<<<<<<<<<<<
+ *     def __init__(self, int lim, double h_rad=0, double min_step=1, double x=0,             # <<<<<<<<<<<<<<
  *                         double y=0):
  *         """
  */
@@ -3904,7 +3901,7 @@ static int __pyx_pf_8Movement_8RadMotor___init__(struct __pyx_obj_8Movement_RadM
   return __pyx_r;
 }
 
-/* "Movement.pyx":80
+/* "Movement.pyx":106
  * 
  * 
  *     def get_heading_rad(self):             # <<<<<<<<<<<<<<
@@ -3931,7 +3928,7 @@ static PyObject *__pyx_pf_8Movement_8RadMotor_2get_heading_rad(struct __pyx_obj_
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("get_heading_rad", 0);
 
-  /* "Movement.pyx":81
+  /* "Movement.pyx":107
  * 
  *     def get_heading_rad(self):
  *         return self._h_rad             # <<<<<<<<<<<<<<
@@ -3939,13 +3936,13 @@ static PyObject *__pyx_pf_8Movement_8RadMotor_2get_heading_rad(struct __pyx_obj_
  * 
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_self->_h_rad); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 81, __pyx_L1_error)
+  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_self->_h_rad); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 107, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "Movement.pyx":80
+  /* "Movement.pyx":106
  * 
  * 
  *     def get_heading_rad(self):             # <<<<<<<<<<<<<<
@@ -3964,12 +3961,12 @@ static PyObject *__pyx_pf_8Movement_8RadMotor_2get_heading_rad(struct __pyx_obj_
   return __pyx_r;
 }
 
-/* "Movement.pyx":84
+/* "Movement.pyx":110
  * 
  * 
  *     cpdef void set_preference(self, double p):             # <<<<<<<<<<<<<<
- *         self._prev_preference = self._preference
- *         self._preference = p
+ *         """
+ *         Parameters
  */
 
 static PyObject *__pyx_pw_8Movement_8RadMotor_5set_preference(PyObject *__pyx_v_self, PyObject *__pyx_arg_p); /*proto*/
@@ -3991,10 +3988,10 @@ static void __pyx_f_8Movement_8RadMotor_set_preference(struct __pyx_obj_8Movemen
     if (unlikely(!__Pyx_object_dict_version_matches(((PyObject *)__pyx_v_self), __pyx_tp_dict_version, __pyx_obj_dict_version))) {
       PY_UINT64_T __pyx_type_dict_guard = __Pyx_get_tp_dict_version(((PyObject *)__pyx_v_self));
       #endif
-      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_set_preference); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 84, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_set_preference); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 110, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       if (!PyCFunction_Check(__pyx_t_1) || (PyCFunction_GET_FUNCTION(__pyx_t_1) != (PyCFunction)(void*)__pyx_pw_8Movement_8RadMotor_5set_preference)) {
-        __pyx_t_3 = PyFloat_FromDouble(__pyx_v_p); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 84, __pyx_L1_error)
+        __pyx_t_3 = PyFloat_FromDouble(__pyx_v_p); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 110, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_3);
         __Pyx_INCREF(__pyx_t_1);
         __pyx_t_4 = __pyx_t_1; __pyx_t_5 = NULL;
@@ -4010,7 +4007,7 @@ static void __pyx_f_8Movement_8RadMotor_set_preference(struct __pyx_obj_8Movemen
         __pyx_t_2 = (__pyx_t_5) ? __Pyx_PyObject_Call2Args(__pyx_t_4, __pyx_t_5, __pyx_t_3) : __Pyx_PyObject_CallOneArg(__pyx_t_4, __pyx_t_3);
         __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
         __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-        if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 84, __pyx_L1_error)
+        if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 110, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_2);
         __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
         __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
@@ -4030,9 +4027,9 @@ static void __pyx_f_8Movement_8RadMotor_set_preference(struct __pyx_obj_8Movemen
     #endif
   }
 
-  /* "Movement.pyx":85
+  /* "Movement.pyx":118
+ *         """
  * 
- *     cpdef void set_preference(self, double p):
  *         self._prev_preference = self._preference             # <<<<<<<<<<<<<<
  *         self._preference = p
  * 
@@ -4040,8 +4037,8 @@ static void __pyx_f_8Movement_8RadMotor_set_preference(struct __pyx_obj_8Movemen
   __pyx_t_6 = __pyx_v_self->__pyx_base._preference;
   __pyx_v_self->_prev_preference = __pyx_t_6;
 
-  /* "Movement.pyx":86
- *     cpdef void set_preference(self, double p):
+  /* "Movement.pyx":119
+ * 
  *         self._prev_preference = self._preference
  *         self._preference = p             # <<<<<<<<<<<<<<
  * 
@@ -4049,12 +4046,12 @@ static void __pyx_f_8Movement_8RadMotor_set_preference(struct __pyx_obj_8Movemen
  */
   __pyx_v_self->__pyx_base._preference = __pyx_v_p;
 
-  /* "Movement.pyx":84
+  /* "Movement.pyx":110
  * 
  * 
  *     cpdef void set_preference(self, double p):             # <<<<<<<<<<<<<<
- *         self._prev_preference = self._preference
- *         self._preference = p
+ *         """
+ *         Parameters
  */
 
   /* function exit code */
@@ -4072,13 +4069,14 @@ static void __pyx_f_8Movement_8RadMotor_set_preference(struct __pyx_obj_8Movemen
 
 /* Python wrapper */
 static PyObject *__pyx_pw_8Movement_8RadMotor_5set_preference(PyObject *__pyx_v_self, PyObject *__pyx_arg_p); /*proto*/
+static char __pyx_doc_8Movement_8RadMotor_4set_preference[] = "\n        Parameters\n        ----------\n        p: double\n            Preference\n        ";
 static PyObject *__pyx_pw_8Movement_8RadMotor_5set_preference(PyObject *__pyx_v_self, PyObject *__pyx_arg_p) {
   double __pyx_v_p;
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("set_preference (wrapper)", 0);
   assert(__pyx_arg_p); {
-    __pyx_v_p = __pyx_PyFloat_AsDouble(__pyx_arg_p); if (unlikely((__pyx_v_p == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 84, __pyx_L3_error)
+    __pyx_v_p = __pyx_PyFloat_AsDouble(__pyx_arg_p); if (unlikely((__pyx_v_p == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 110, __pyx_L3_error)
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -4099,7 +4097,7 @@ static PyObject *__pyx_pf_8Movement_8RadMotor_4set_preference(struct __pyx_obj_8
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("set_preference", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_void_to_None(__pyx_f_8Movement_8RadMotor_set_preference(__pyx_v_self, __pyx_v_p, 1)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 84, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_void_to_None(__pyx_f_8Movement_8RadMotor_set_preference(__pyx_v_self, __pyx_v_p, 1)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 110, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -4116,7 +4114,7 @@ static PyObject *__pyx_pf_8Movement_8RadMotor_4set_preference(struct __pyx_obj_8
   return __pyx_r;
 }
 
-/* "Movement.pyx":89
+/* "Movement.pyx":122
  * 
  * 
  *     cdef void _round_rad(self):             # <<<<<<<<<<<<<<
@@ -4129,7 +4127,7 @@ static void __pyx_f_8Movement_8RadMotor__round_rad(struct __pyx_obj_8Movement_Ra
   int __pyx_t_1;
   __Pyx_RefNannySetupContext("_round_rad", 0);
 
-  /* "Movement.pyx":90
+  /* "Movement.pyx":123
  * 
  *     cdef void _round_rad(self):
  *         if self._h_rad > TWO_PI:             # <<<<<<<<<<<<<<
@@ -4139,7 +4137,7 @@ static void __pyx_f_8Movement_8RadMotor__round_rad(struct __pyx_obj_8Movement_Ra
   __pyx_t_1 = ((__pyx_v_self->_h_rad > __pyx_v_8Movement_TWO_PI) != 0);
   if (__pyx_t_1) {
 
-    /* "Movement.pyx":91
+    /* "Movement.pyx":124
  *     cdef void _round_rad(self):
  *         if self._h_rad > TWO_PI:
  *             self._h_rad = fmod(self._h_rad, TWO_PI);             # <<<<<<<<<<<<<<
@@ -4148,7 +4146,7 @@ static void __pyx_f_8Movement_8RadMotor__round_rad(struct __pyx_obj_8Movement_Ra
  */
     __pyx_v_self->_h_rad = fmod(__pyx_v_self->_h_rad, __pyx_v_8Movement_TWO_PI);
 
-    /* "Movement.pyx":90
+    /* "Movement.pyx":123
  * 
  *     cdef void _round_rad(self):
  *         if self._h_rad > TWO_PI:             # <<<<<<<<<<<<<<
@@ -4158,7 +4156,7 @@ static void __pyx_f_8Movement_8RadMotor__round_rad(struct __pyx_obj_8Movement_Ra
     goto __pyx_L3;
   }
 
-  /* "Movement.pyx":92
+  /* "Movement.pyx":125
  *         if self._h_rad > TWO_PI:
  *             self._h_rad = fmod(self._h_rad, TWO_PI);
  *         elif (self._h_rad < 0):             # <<<<<<<<<<<<<<
@@ -4168,7 +4166,7 @@ static void __pyx_f_8Movement_8RadMotor__round_rad(struct __pyx_obj_8Movement_Ra
   __pyx_t_1 = ((__pyx_v_self->_h_rad < 0.0) != 0);
   if (__pyx_t_1) {
 
-    /* "Movement.pyx":93
+    /* "Movement.pyx":126
  *             self._h_rad = fmod(self._h_rad, TWO_PI);
  *         elif (self._h_rad < 0):
  *             self._h_rad = fmod(self._h_rad, TWO_PI);             # <<<<<<<<<<<<<<
@@ -4177,7 +4175,7 @@ static void __pyx_f_8Movement_8RadMotor__round_rad(struct __pyx_obj_8Movement_Ra
  */
     __pyx_v_self->_h_rad = fmod(__pyx_v_self->_h_rad, __pyx_v_8Movement_TWO_PI);
 
-    /* "Movement.pyx":94
+    /* "Movement.pyx":127
  *         elif (self._h_rad < 0):
  *             self._h_rad = fmod(self._h_rad, TWO_PI);
  *             self._h_rad += TWO_PI;             # <<<<<<<<<<<<<<
@@ -4186,7 +4184,7 @@ static void __pyx_f_8Movement_8RadMotor__round_rad(struct __pyx_obj_8Movement_Ra
  */
     __pyx_v_self->_h_rad = (__pyx_v_self->_h_rad + __pyx_v_8Movement_TWO_PI);
 
-    /* "Movement.pyx":92
+    /* "Movement.pyx":125
  *         if self._h_rad > TWO_PI:
  *             self._h_rad = fmod(self._h_rad, TWO_PI);
  *         elif (self._h_rad < 0):             # <<<<<<<<<<<<<<
@@ -4196,7 +4194,7 @@ static void __pyx_f_8Movement_8RadMotor__round_rad(struct __pyx_obj_8Movement_Ra
   }
   __pyx_L3:;
 
-  /* "Movement.pyx":89
+  /* "Movement.pyx":122
  * 
  * 
  *     cdef void _round_rad(self):             # <<<<<<<<<<<<<<
@@ -4208,12 +4206,12 @@ static void __pyx_f_8Movement_8RadMotor__round_rad(struct __pyx_obj_8Movement_Ra
   __Pyx_RefNannyFinishContext();
 }
 
-/* "Movement.pyx":100
+/* "Movement.pyx":133
  *     @cython.wraparound(False)
  *     @cython.initializedcheck(False)
  *     cpdef double[::1] move(self, int sig_ign=0):             # <<<<<<<<<<<<<<
  *         """
- *         Parameters
+ *         To move based on (or not based on due to sig_ign) preference
  */
 
 static PyObject *__pyx_pw_8Movement_8RadMotor_7move(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
@@ -4243,10 +4241,10 @@ static __Pyx_memviewslice __pyx_f_8Movement_8RadMotor_move(struct __pyx_obj_8Mov
     if (unlikely(!__Pyx_object_dict_version_matches(((PyObject *)__pyx_v_self), __pyx_tp_dict_version, __pyx_obj_dict_version))) {
       PY_UINT64_T __pyx_type_dict_guard = __Pyx_get_tp_dict_version(((PyObject *)__pyx_v_self));
       #endif
-      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_move); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 100, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_move); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 133, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       if (!PyCFunction_Check(__pyx_t_1) || (PyCFunction_GET_FUNCTION(__pyx_t_1) != (PyCFunction)(void*)__pyx_pw_8Movement_8RadMotor_7move)) {
-        __pyx_t_3 = __Pyx_PyInt_From_int(__pyx_v_sig_ign); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 100, __pyx_L1_error)
+        __pyx_t_3 = __Pyx_PyInt_From_int(__pyx_v_sig_ign); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 133, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_3);
         __Pyx_INCREF(__pyx_t_1);
         __pyx_t_4 = __pyx_t_1; __pyx_t_5 = NULL;
@@ -4262,10 +4260,10 @@ static __Pyx_memviewslice __pyx_f_8Movement_8RadMotor_move(struct __pyx_obj_8Mov
         __pyx_t_2 = (__pyx_t_5) ? __Pyx_PyObject_Call2Args(__pyx_t_4, __pyx_t_5, __pyx_t_3) : __Pyx_PyObject_CallOneArg(__pyx_t_4, __pyx_t_3);
         __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
         __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-        if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 100, __pyx_L1_error)
+        if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 133, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_2);
         __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-        __pyx_t_6 = __Pyx_PyObject_to_MemoryviewSlice_dc_double(__pyx_t_2, PyBUF_WRITABLE); if (unlikely(!__pyx_t_6.memview)) __PYX_ERR(0, 100, __pyx_L1_error)
+        __pyx_t_6 = __Pyx_PyObject_to_MemoryviewSlice_dc_double(__pyx_t_2, PyBUF_WRITABLE); if (unlikely(!__pyx_t_6.memview)) __PYX_ERR(0, 133, __pyx_L1_error)
         __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
         __pyx_r = __pyx_t_6;
         __pyx_t_6.memview = NULL;
@@ -4286,7 +4284,7 @@ static __Pyx_memviewslice __pyx_f_8Movement_8RadMotor_move(struct __pyx_obj_8Mov
     #endif
   }
 
-  /* "Movement.pyx":111
+  /* "Movement.pyx":146
  *         """
  * 
  *         cmove(&self._h_rad, &self._pos[0], self._preference,             # <<<<<<<<<<<<<<
@@ -4295,7 +4293,7 @@ static __Pyx_memviewslice __pyx_f_8Movement_8RadMotor_move(struct __pyx_obj_8Mov
  */
   __pyx_t_7 = 0;
 
-  /* "Movement.pyx":113
+  /* "Movement.pyx":148
  *         cmove(&self._h_rad, &self._pos[0], self._preference,
  *             self._prev_preference, self._min_step,
  *             <double> self._lim, self._target_dir, sig_ign)             # <<<<<<<<<<<<<<
@@ -4304,7 +4302,7 @@ static __Pyx_memviewslice __pyx_f_8Movement_8RadMotor_move(struct __pyx_obj_8Mov
  */
   cmove((&__pyx_v_self->_h_rad), (&(*((double *) ( /* dim=0 */ ((char *) (((double *) __pyx_v_self->__pyx_base._pos.data) + __pyx_t_7)) )))), __pyx_v_self->__pyx_base._preference, __pyx_v_self->_prev_preference, __pyx_v_self->__pyx_base._min_step, ((double)__pyx_v_self->__pyx_base._lim), __pyx_v_self->_target_dir, __pyx_v_sig_ign);
 
-  /* "Movement.pyx":115
+  /* "Movement.pyx":150
  *             <double> self._lim, self._target_dir, sig_ign)
  * 
  *         return self._pos             # <<<<<<<<<<<<<<
@@ -4315,12 +4313,12 @@ static __Pyx_memviewslice __pyx_f_8Movement_8RadMotor_move(struct __pyx_obj_8Mov
   __pyx_r = __pyx_v_self->__pyx_base._pos;
   goto __pyx_L0;
 
-  /* "Movement.pyx":100
+  /* "Movement.pyx":133
  *     @cython.wraparound(False)
  *     @cython.initializedcheck(False)
  *     cpdef double[::1] move(self, int sig_ign=0):             # <<<<<<<<<<<<<<
  *         """
- *         Parameters
+ *         To move based on (or not based on due to sig_ign) preference
  */
 
   /* function exit code */
@@ -4346,7 +4344,7 @@ static __Pyx_memviewslice __pyx_f_8Movement_8RadMotor_move(struct __pyx_obj_8Mov
 
 /* Python wrapper */
 static PyObject *__pyx_pw_8Movement_8RadMotor_7move(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_8Movement_8RadMotor_6move[] = "\n        Parameters\n        ----------\n        sig_ign: int\n            Ignorance signal\n            If 1, ignore any moving instruction and maintain \n            its previous heading radian; if 0, follow the moving \n            instructions normally.\n        ";
+static char __pyx_doc_8Movement_8RadMotor_6move[] = "\n        To move based on (or not based on due to sig_ign) preference\n\n        Parameters\n        ----------\n        sig_ign: int\n            Ignorance signal\n            If 1, ignore any moving instruction and maintain \n            its previous heading radian; if 0, follow the moving \n            instructions normally.\n        ";
 static PyObject *__pyx_pw_8Movement_8RadMotor_7move(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   int __pyx_v_sig_ign;
   PyObject *__pyx_r = 0;
@@ -4373,7 +4371,7 @@ static PyObject *__pyx_pw_8Movement_8RadMotor_7move(PyObject *__pyx_v_self, PyOb
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "move") < 0)) __PYX_ERR(0, 100, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "move") < 0)) __PYX_ERR(0, 133, __pyx_L3_error)
       }
     } else {
       switch (PyTuple_GET_SIZE(__pyx_args)) {
@@ -4384,14 +4382,14 @@ static PyObject *__pyx_pw_8Movement_8RadMotor_7move(PyObject *__pyx_v_self, PyOb
       }
     }
     if (values[0]) {
-      __pyx_v_sig_ign = __Pyx_PyInt_As_int(values[0]); if (unlikely((__pyx_v_sig_ign == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 100, __pyx_L3_error)
+      __pyx_v_sig_ign = __Pyx_PyInt_As_int(values[0]); if (unlikely((__pyx_v_sig_ign == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 133, __pyx_L3_error)
     } else {
       __pyx_v_sig_ign = ((int)0);
     }
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("move", 0, 0, 1, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 100, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("move", 0, 0, 1, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 133, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("Movement.RadMotor.move", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -4414,8 +4412,8 @@ static PyObject *__pyx_pf_8Movement_8RadMotor_6move(struct __pyx_obj_8Movement_R
   __Pyx_XDECREF(__pyx_r);
   __pyx_t_2.__pyx_n = 1;
   __pyx_t_2.sig_ign = __pyx_v_sig_ign;
-  __pyx_t_1 = __pyx_vtabptr_8Movement_RadMotor->move(__pyx_v_self, 1, &__pyx_t_2); if (unlikely(!__pyx_t_1.memview)) __PYX_ERR(0, 100, __pyx_L1_error)
-  __pyx_t_3 = __pyx_memoryview_fromslice(__pyx_t_1, 1, (PyObject *(*)(char *)) __pyx_memview_get_double, (int (*)(char *, PyObject *)) __pyx_memview_set_double, 0);; if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 100, __pyx_L1_error)
+  __pyx_t_1 = __pyx_vtabptr_8Movement_RadMotor->move(__pyx_v_self, 1, &__pyx_t_2); if (unlikely(!__pyx_t_1.memview)) __PYX_ERR(0, 133, __pyx_L1_error)
+  __pyx_t_3 = __pyx_memoryview_fromslice(__pyx_t_1, 1, (PyObject *(*)(char *)) __pyx_memview_get_double, (int (*)(char *, PyObject *)) __pyx_memview_set_double, 0);; if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 133, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __PYX_XDEC_MEMVIEW(&__pyx_t_1, 1);
   __pyx_t_1.memview = NULL;
@@ -4436,7 +4434,7 @@ static PyObject *__pyx_pf_8Movement_8RadMotor_6move(struct __pyx_obj_8Movement_R
   return __pyx_r;
 }
 
-/* "Movement.pyx":118
+/* "Movement.pyx":153
  * 
  * 
  *     cpdef void rotate(self, double rad):             # <<<<<<<<<<<<<<
@@ -4462,10 +4460,10 @@ static void __pyx_f_8Movement_8RadMotor_rotate(struct __pyx_obj_8Movement_RadMot
     if (unlikely(!__Pyx_object_dict_version_matches(((PyObject *)__pyx_v_self), __pyx_tp_dict_version, __pyx_obj_dict_version))) {
       PY_UINT64_T __pyx_type_dict_guard = __Pyx_get_tp_dict_version(((PyObject *)__pyx_v_self));
       #endif
-      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_rotate); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 118, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_rotate); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 153, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       if (!PyCFunction_Check(__pyx_t_1) || (PyCFunction_GET_FUNCTION(__pyx_t_1) != (PyCFunction)(void*)__pyx_pw_8Movement_8RadMotor_9rotate)) {
-        __pyx_t_3 = PyFloat_FromDouble(__pyx_v_rad); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 118, __pyx_L1_error)
+        __pyx_t_3 = PyFloat_FromDouble(__pyx_v_rad); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 153, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_3);
         __Pyx_INCREF(__pyx_t_1);
         __pyx_t_4 = __pyx_t_1; __pyx_t_5 = NULL;
@@ -4481,7 +4479,7 @@ static void __pyx_f_8Movement_8RadMotor_rotate(struct __pyx_obj_8Movement_RadMot
         __pyx_t_2 = (__pyx_t_5) ? __Pyx_PyObject_Call2Args(__pyx_t_4, __pyx_t_5, __pyx_t_3) : __Pyx_PyObject_CallOneArg(__pyx_t_4, __pyx_t_3);
         __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
         __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-        if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 118, __pyx_L1_error)
+        if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 153, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_2);
         __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
         __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
@@ -4501,7 +4499,7 @@ static void __pyx_f_8Movement_8RadMotor_rotate(struct __pyx_obj_8Movement_RadMot
     #endif
   }
 
-  /* "Movement.pyx":119
+  /* "Movement.pyx":154
  * 
  *     cpdef void rotate(self, double rad):
  *         self._h_rad += rad             # <<<<<<<<<<<<<<
@@ -4510,7 +4508,7 @@ static void __pyx_f_8Movement_8RadMotor_rotate(struct __pyx_obj_8Movement_RadMot
  */
   __pyx_v_self->_h_rad = (__pyx_v_self->_h_rad + __pyx_v_rad);
 
-  /* "Movement.pyx":120
+  /* "Movement.pyx":155
  *     cpdef void rotate(self, double rad):
  *         self._h_rad += rad
  *         self._round_rad()             # <<<<<<<<<<<<<<
@@ -4519,7 +4517,7 @@ static void __pyx_f_8Movement_8RadMotor_rotate(struct __pyx_obj_8Movement_RadMot
  */
   ((struct __pyx_vtabstruct_8Movement_RadMotor *)__pyx_v_self->__pyx_base.__pyx_vtab)->_round_rad(__pyx_v_self);
 
-  /* "Movement.pyx":118
+  /* "Movement.pyx":153
  * 
  * 
  *     cpdef void rotate(self, double rad):             # <<<<<<<<<<<<<<
@@ -4548,7 +4546,7 @@ static PyObject *__pyx_pw_8Movement_8RadMotor_9rotate(PyObject *__pyx_v_self, Py
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("rotate (wrapper)", 0);
   assert(__pyx_arg_rad); {
-    __pyx_v_rad = __pyx_PyFloat_AsDouble(__pyx_arg_rad); if (unlikely((__pyx_v_rad == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 118, __pyx_L3_error)
+    __pyx_v_rad = __pyx_PyFloat_AsDouble(__pyx_arg_rad); if (unlikely((__pyx_v_rad == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 153, __pyx_L3_error)
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -4569,7 +4567,7 @@ static PyObject *__pyx_pf_8Movement_8RadMotor_8rotate(struct __pyx_obj_8Movement
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("rotate", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_void_to_None(__pyx_f_8Movement_8RadMotor_rotate(__pyx_v_self, __pyx_v_rad, 1)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 118, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_void_to_None(__pyx_f_8Movement_8RadMotor_rotate(__pyx_v_self, __pyx_v_rad, 1)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 153, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -4586,12 +4584,12 @@ static PyObject *__pyx_pf_8Movement_8RadMotor_8rotate(struct __pyx_obj_8Movement
   return __pyx_r;
 }
 
-/* "Movement.pyx":127
+/* "Movement.pyx":162
  *     @cython.initializedcheck(False)
  *     @cython.cdivision(True)
  *     cpdef void heading(self, double[::1] target):             # <<<<<<<<<<<<<<
  *         """
- *         Parameters
+ *         Heading towards a target position
  */
 
 static PyObject *__pyx_pw_8Movement_8RadMotor_11heading(PyObject *__pyx_v_self, PyObject *__pyx_arg_target); /*proto*/
@@ -4620,10 +4618,10 @@ static void __pyx_f_8Movement_8RadMotor_heading(struct __pyx_obj_8Movement_RadMo
     if (unlikely(!__Pyx_object_dict_version_matches(((PyObject *)__pyx_v_self), __pyx_tp_dict_version, __pyx_obj_dict_version))) {
       PY_UINT64_T __pyx_type_dict_guard = __Pyx_get_tp_dict_version(((PyObject *)__pyx_v_self));
       #endif
-      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_heading); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 127, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_heading); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 162, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       if (!PyCFunction_Check(__pyx_t_1) || (PyCFunction_GET_FUNCTION(__pyx_t_1) != (PyCFunction)(void*)__pyx_pw_8Movement_8RadMotor_11heading)) {
-        __pyx_t_3 = __pyx_memoryview_fromslice(__pyx_v_target, 1, (PyObject *(*)(char *)) __pyx_memview_get_double, (int (*)(char *, PyObject *)) __pyx_memview_set_double, 0);; if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 127, __pyx_L1_error)
+        __pyx_t_3 = __pyx_memoryview_fromslice(__pyx_v_target, 1, (PyObject *(*)(char *)) __pyx_memview_get_double, (int (*)(char *, PyObject *)) __pyx_memview_set_double, 0);; if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 162, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_3);
         __Pyx_INCREF(__pyx_t_1);
         __pyx_t_4 = __pyx_t_1; __pyx_t_5 = NULL;
@@ -4639,7 +4637,7 @@ static void __pyx_f_8Movement_8RadMotor_heading(struct __pyx_obj_8Movement_RadMo
         __pyx_t_2 = (__pyx_t_5) ? __Pyx_PyObject_Call2Args(__pyx_t_4, __pyx_t_5, __pyx_t_3) : __Pyx_PyObject_CallOneArg(__pyx_t_4, __pyx_t_3);
         __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
         __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-        if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 127, __pyx_L1_error)
+        if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 162, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_2);
         __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
         __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
@@ -4659,7 +4657,7 @@ static void __pyx_f_8Movement_8RadMotor_heading(struct __pyx_obj_8Movement_RadMo
     #endif
   }
 
-  /* "Movement.pyx":134
+  /* "Movement.pyx":171
  *             The target position
  *         """
  *         cdef double xdiff = target[0] - self._pos[0]             # <<<<<<<<<<<<<<
@@ -4670,7 +4668,7 @@ static void __pyx_f_8Movement_8RadMotor_heading(struct __pyx_obj_8Movement_RadMo
   __pyx_t_7 = 0;
   __pyx_v_xdiff = ((*((double *) ( /* dim=0 */ ((char *) (((double *) __pyx_v_target.data) + __pyx_t_6)) ))) - (*((double *) ( /* dim=0 */ ((char *) (((double *) __pyx_v_self->__pyx_base._pos.data) + __pyx_t_7)) ))));
 
-  /* "Movement.pyx":135
+  /* "Movement.pyx":172
  *         """
  *         cdef double xdiff = target[0] - self._pos[0]
  *         cdef double ydiff = target[1] - self._pos[1]             # <<<<<<<<<<<<<<
@@ -4681,7 +4679,7 @@ static void __pyx_f_8Movement_8RadMotor_heading(struct __pyx_obj_8Movement_RadMo
   __pyx_t_9 = 1;
   __pyx_v_ydiff = ((*((double *) ( /* dim=0 */ ((char *) (((double *) __pyx_v_target.data) + __pyx_t_8)) ))) - (*((double *) ( /* dim=0 */ ((char *) (((double *) __pyx_v_self->__pyx_base._pos.data) + __pyx_t_9)) ))));
 
-  /* "Movement.pyx":136
+  /* "Movement.pyx":173
  *         cdef double xdiff = target[0] - self._pos[0]
  *         cdef double ydiff = target[1] - self._pos[1]
  *         if ydiff > 0:             # <<<<<<<<<<<<<<
@@ -4691,7 +4689,7 @@ static void __pyx_f_8Movement_8RadMotor_heading(struct __pyx_obj_8Movement_RadMo
   __pyx_t_10 = ((__pyx_v_ydiff > 0.0) != 0);
   if (__pyx_t_10) {
 
-    /* "Movement.pyx":137
+    /* "Movement.pyx":174
  *         cdef double ydiff = target[1] - self._pos[1]
  *         if ydiff > 0:
  *             self._h_rad = acos(xdiff / sqrt(xdiff**2 + ydiff**2))             # <<<<<<<<<<<<<<
@@ -4700,7 +4698,7 @@ static void __pyx_f_8Movement_8RadMotor_heading(struct __pyx_obj_8Movement_RadMo
  */
     __pyx_v_self->_h_rad = acos((__pyx_v_xdiff / sqrt((pow(__pyx_v_xdiff, 2.0) + pow(__pyx_v_ydiff, 2.0)))));
 
-    /* "Movement.pyx":136
+    /* "Movement.pyx":173
  *         cdef double xdiff = target[0] - self._pos[0]
  *         cdef double ydiff = target[1] - self._pos[1]
  *         if ydiff > 0:             # <<<<<<<<<<<<<<
@@ -4710,7 +4708,7 @@ static void __pyx_f_8Movement_8RadMotor_heading(struct __pyx_obj_8Movement_RadMo
     goto __pyx_L3;
   }
 
-  /* "Movement.pyx":139
+  /* "Movement.pyx":176
  *             self._h_rad = acos(xdiff / sqrt(xdiff**2 + ydiff**2))
  *         else:
  *             self._h_rad = acos(-xdiff / sqrt(xdiff**2 + ydiff**2)) + PI             # <<<<<<<<<<<<<<
@@ -4721,7 +4719,7 @@ static void __pyx_f_8Movement_8RadMotor_heading(struct __pyx_obj_8Movement_RadMo
   }
   __pyx_L3:;
 
-  /* "Movement.pyx":140
+  /* "Movement.pyx":177
  *         else:
  *             self._h_rad = acos(-xdiff / sqrt(xdiff**2 + ydiff**2)) + PI
  *         self._target_dir = self._h_rad             # <<<<<<<<<<<<<<
@@ -4729,12 +4727,12 @@ static void __pyx_f_8Movement_8RadMotor_heading(struct __pyx_obj_8Movement_RadMo
   __pyx_t_11 = __pyx_v_self->_h_rad;
   __pyx_v_self->_target_dir = __pyx_t_11;
 
-  /* "Movement.pyx":127
+  /* "Movement.pyx":162
  *     @cython.initializedcheck(False)
  *     @cython.cdivision(True)
  *     cpdef void heading(self, double[::1] target):             # <<<<<<<<<<<<<<
  *         """
- *         Parameters
+ *         Heading towards a target position
  */
 
   /* function exit code */
@@ -4752,14 +4750,14 @@ static void __pyx_f_8Movement_8RadMotor_heading(struct __pyx_obj_8Movement_RadMo
 
 /* Python wrapper */
 static PyObject *__pyx_pw_8Movement_8RadMotor_11heading(PyObject *__pyx_v_self, PyObject *__pyx_arg_target); /*proto*/
-static char __pyx_doc_8Movement_8RadMotor_10heading[] = "\n        Parameters\n        ----------\n        target: np.ndarray or memoryview\n            The target position\n        ";
+static char __pyx_doc_8Movement_8RadMotor_10heading[] = "\n        Heading towards a target position\n        \n        Parameters\n        ----------\n        target: np.ndarray or memoryview\n            The target position\n        ";
 static PyObject *__pyx_pw_8Movement_8RadMotor_11heading(PyObject *__pyx_v_self, PyObject *__pyx_arg_target) {
   __Pyx_memviewslice __pyx_v_target = { 0, 0, { 0 }, { 0 }, { 0 } };
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("heading (wrapper)", 0);
   assert(__pyx_arg_target); {
-    __pyx_v_target = __Pyx_PyObject_to_MemoryviewSlice_dc_double(__pyx_arg_target, PyBUF_WRITABLE); if (unlikely(!__pyx_v_target.memview)) __PYX_ERR(0, 127, __pyx_L3_error)
+    __pyx_v_target = __Pyx_PyObject_to_MemoryviewSlice_dc_double(__pyx_arg_target, PyBUF_WRITABLE); if (unlikely(!__pyx_v_target.memview)) __PYX_ERR(0, 162, __pyx_L3_error)
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -4780,7 +4778,7 @@ static PyObject *__pyx_pf_8Movement_8RadMotor_10heading(struct __pyx_obj_8Moveme
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("heading", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_void_to_None(__pyx_f_8Movement_8RadMotor_heading(__pyx_v_self, __pyx_v_target, 1)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 127, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_void_to_None(__pyx_f_8Movement_8RadMotor_heading(__pyx_v_self, __pyx_v_target, 1)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 162, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -21216,7 +21214,7 @@ static void __pyx_tp_dealloc_8Movement_Motor(PyObject *o) {
 
 static PyMethodDef __pyx_methods_8Movement_Motor[] = {
   {"get_pos", (PyCFunction)__pyx_pw_8Movement_5Motor_3get_pos, METH_NOARGS, 0},
-  {"is_at", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_8Movement_5Motor_5is_at, METH_VARARGS|METH_KEYWORDS, 0},
+  {"is_at", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_8Movement_5Motor_5is_at, METH_VARARGS|METH_KEYWORDS, __pyx_doc_8Movement_5Motor_4is_at},
   {"__reduce_cython__", (PyCFunction)__pyx_pw_8Movement_5Motor_7__reduce_cython__, METH_NOARGS, 0},
   {"__setstate_cython__", (PyCFunction)__pyx_pw_8Movement_5Motor_9__setstate_cython__, METH_O, 0},
   {0, 0, 0, 0}
@@ -21248,7 +21246,7 @@ static PyTypeObject __pyx_type_8Movement_Motor = {
   0, /*tp_setattro*/
   0, /*tp_as_buffer*/
   Py_TPFLAGS_DEFAULT|Py_TPFLAGS_HAVE_VERSION_TAG|Py_TPFLAGS_CHECKTYPES|Py_TPFLAGS_HAVE_NEWBUFFER|Py_TPFLAGS_BASETYPE, /*tp_flags*/
-  0, /*tp_doc*/
+  " Super class\n    ", /*tp_doc*/
   0, /*tp_traverse*/
   0, /*tp_clear*/
   0, /*tp_richcompare*/
@@ -21295,7 +21293,7 @@ static PyObject *__pyx_tp_new_8Movement_RadMotor(PyTypeObject *t, PyObject *a, P
 
 static PyMethodDef __pyx_methods_8Movement_RadMotor[] = {
   {"get_heading_rad", (PyCFunction)__pyx_pw_8Movement_8RadMotor_3get_heading_rad, METH_NOARGS, 0},
-  {"set_preference", (PyCFunction)__pyx_pw_8Movement_8RadMotor_5set_preference, METH_O, 0},
+  {"set_preference", (PyCFunction)__pyx_pw_8Movement_8RadMotor_5set_preference, METH_O, __pyx_doc_8Movement_8RadMotor_4set_preference},
   {"move", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_8Movement_8RadMotor_7move, METH_VARARGS|METH_KEYWORDS, __pyx_doc_8Movement_8RadMotor_6move},
   {"rotate", (PyCFunction)__pyx_pw_8Movement_8RadMotor_9rotate, METH_O, 0},
   {"heading", (PyCFunction)__pyx_pw_8Movement_8RadMotor_11heading, METH_O, __pyx_doc_8Movement_8RadMotor_10heading},
@@ -22219,7 +22217,7 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {0, 0, 0, 0, 0, 0, 0}
 };
 static CYTHON_SMALL_CODE int __Pyx_InitCachedBuiltins(void) {
-  __pyx_builtin_super = __Pyx_GetBuiltinName(__pyx_n_s_super); if (!__pyx_builtin_super) __PYX_ERR(0, 68, __pyx_L1_error)
+  __pyx_builtin_super = __Pyx_GetBuiltinName(__pyx_n_s_super); if (!__pyx_builtin_super) __PYX_ERR(0, 94, __pyx_L1_error)
   __pyx_builtin_ValueError = __Pyx_GetBuiltinName(__pyx_n_s_ValueError); if (!__pyx_builtin_ValueError) __PYX_ERR(2, 272, __pyx_L1_error)
   __pyx_builtin_range = __Pyx_GetBuiltinName(__pyx_n_s_range); if (!__pyx_builtin_range) __PYX_ERR(2, 285, __pyx_L1_error)
   __pyx_builtin_RuntimeError = __Pyx_GetBuiltinName(__pyx_n_s_RuntimeError); if (!__pyx_builtin_RuntimeError) __PYX_ERR(2, 856, __pyx_L1_error)
@@ -22657,6 +22655,16 @@ static int __Pyx_modinit_type_init_code(void) {
   if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_type_8Movement_Motor.tp_dictoffset && __pyx_type_8Movement_Motor.tp_getattro == PyObject_GenericGetAttr)) {
     __pyx_type_8Movement_Motor.tp_getattro = __Pyx_PyObject_GenericGetAttr;
   }
+  #if CYTHON_COMPILING_IN_CPYTHON
+  {
+    PyObject *wrapper = PyObject_GetAttrString((PyObject *)&__pyx_type_8Movement_Motor, "__init__"); if (unlikely(!wrapper)) __PYX_ERR(0, 21, __pyx_L1_error)
+    if (Py_TYPE(wrapper) == &PyWrapperDescr_Type) {
+      __pyx_wrapperbase_8Movement_5Motor___init__ = *((PyWrapperDescrObject *)wrapper)->d_base;
+      __pyx_wrapperbase_8Movement_5Motor___init__.doc = __pyx_doc_8Movement_5Motor___init__;
+      ((PyWrapperDescrObject *)wrapper)->d_base = &__pyx_wrapperbase_8Movement_5Motor___init__;
+    }
+  }
+  #endif
   if (__Pyx_SetVtable(__pyx_type_8Movement_Motor.tp_dict, __pyx_vtabptr_8Movement_Motor) < 0) __PYX_ERR(0, 21, __pyx_L1_error)
   if (PyObject_SetAttr(__pyx_m, __pyx_n_s_Motor, (PyObject *)&__pyx_type_8Movement_Motor) < 0) __PYX_ERR(0, 21, __pyx_L1_error)
   if (__Pyx_setup_reduce((PyObject*)&__pyx_type_8Movement_Motor) < 0) __PYX_ERR(0, 21, __pyx_L1_error)
@@ -22669,7 +22677,7 @@ static int __Pyx_modinit_type_init_code(void) {
   __pyx_vtable_8Movement_RadMotor.rotate = (void (*)(struct __pyx_obj_8Movement_RadMotor *, double, int __pyx_skip_dispatch))__pyx_f_8Movement_8RadMotor_rotate;
   __pyx_vtable_8Movement_RadMotor.heading = (void (*)(struct __pyx_obj_8Movement_RadMotor *, __Pyx_memviewslice, int __pyx_skip_dispatch))__pyx_f_8Movement_8RadMotor_heading;
   __pyx_type_8Movement_RadMotor.tp_base = __pyx_ptype_8Movement_Motor;
-  if (PyType_Ready(&__pyx_type_8Movement_RadMotor) < 0) __PYX_ERR(0, 46, __pyx_L1_error)
+  if (PyType_Ready(&__pyx_type_8Movement_RadMotor) < 0) __PYX_ERR(0, 72, __pyx_L1_error)
   #if PY_VERSION_HEX < 0x030800B1
   __pyx_type_8Movement_RadMotor.tp_print = 0;
   #endif
@@ -22678,7 +22686,7 @@ static int __Pyx_modinit_type_init_code(void) {
   }
   #if CYTHON_COMPILING_IN_CPYTHON
   {
-    PyObject *wrapper = PyObject_GetAttrString((PyObject *)&__pyx_type_8Movement_RadMotor, "__init__"); if (unlikely(!wrapper)) __PYX_ERR(0, 46, __pyx_L1_error)
+    PyObject *wrapper = PyObject_GetAttrString((PyObject *)&__pyx_type_8Movement_RadMotor, "__init__"); if (unlikely(!wrapper)) __PYX_ERR(0, 72, __pyx_L1_error)
     if (Py_TYPE(wrapper) == &PyWrapperDescr_Type) {
       __pyx_wrapperbase_8Movement_8RadMotor___init__ = *((PyWrapperDescrObject *)wrapper)->d_base;
       __pyx_wrapperbase_8Movement_8RadMotor___init__.doc = __pyx_doc_8Movement_8RadMotor___init__;
@@ -22686,9 +22694,9 @@ static int __Pyx_modinit_type_init_code(void) {
     }
   }
   #endif
-  if (__Pyx_SetVtable(__pyx_type_8Movement_RadMotor.tp_dict, __pyx_vtabptr_8Movement_RadMotor) < 0) __PYX_ERR(0, 46, __pyx_L1_error)
-  if (PyObject_SetAttr(__pyx_m, __pyx_n_s_RadMotor, (PyObject *)&__pyx_type_8Movement_RadMotor) < 0) __PYX_ERR(0, 46, __pyx_L1_error)
-  if (__Pyx_setup_reduce((PyObject*)&__pyx_type_8Movement_RadMotor) < 0) __PYX_ERR(0, 46, __pyx_L1_error)
+  if (__Pyx_SetVtable(__pyx_type_8Movement_RadMotor.tp_dict, __pyx_vtabptr_8Movement_RadMotor) < 0) __PYX_ERR(0, 72, __pyx_L1_error)
+  if (PyObject_SetAttr(__pyx_m, __pyx_n_s_RadMotor, (PyObject *)&__pyx_type_8Movement_RadMotor) < 0) __PYX_ERR(0, 72, __pyx_L1_error)
+  if (__Pyx_setup_reduce((PyObject*)&__pyx_type_8Movement_RadMotor) < 0) __PYX_ERR(0, 72, __pyx_L1_error)
   __pyx_ptype_8Movement_RadMotor = &__pyx_type_8Movement_RadMotor;
   __pyx_vtabptr_array = &__pyx_vtable_array;
   __pyx_vtable_array.get_memview = (PyObject *(*)(struct __pyx_array_obj *))__pyx_array_get_memview;
@@ -26382,41 +26390,6 @@ __pyx_fail:
     result.memview = NULL;
     result.data = NULL;
     return result;
-}
-
-/* ObjectToMemviewSlice */
-  static CYTHON_INLINE __Pyx_memviewslice __Pyx_PyObject_to_MemoryviewSlice_dc_int(PyObject *obj, int writable_flag) {
-    __Pyx_memviewslice result = { 0, 0, { 0 }, { 0 }, { 0 } };
-    __Pyx_BufFmt_StackElem stack[1];
-    int axes_specs[] = { (__Pyx_MEMVIEW_DIRECT | __Pyx_MEMVIEW_CONTIG) };
-    int retcode;
-    if (obj == Py_None) {
-        result.memview = (struct __pyx_memoryview_obj *) Py_None;
-        return result;
-    }
-    retcode = __Pyx_ValidateAndInit_memviewslice(axes_specs, __Pyx_IS_C_CONTIG,
-                                                 (PyBUF_C_CONTIGUOUS | PyBUF_FORMAT) | writable_flag, 1,
-                                                 &__Pyx_TypeInfo_int, stack,
-                                                 &result, obj);
-    if (unlikely(retcode == -1))
-        goto __pyx_fail;
-    return result;
-__pyx_fail:
-    result.memview = NULL;
-    result.data = NULL;
-    return result;
-}
-
-/* MemviewDtypeToObject */
-  static CYTHON_INLINE PyObject *__pyx_memview_get_int(const char *itemp) {
-    return (PyObject *) __Pyx_PyInt_From_int(*(int *) itemp);
-}
-static CYTHON_INLINE int __pyx_memview_set_int(const char *itemp, PyObject *obj) {
-    int value = __Pyx_PyInt_As_int(obj);
-    if ((value == (int)-1) && PyErr_Occurred())
-        return 0;
-    *(int *) itemp = value;
-    return 1;
 }
 
 /* CIntToPy */

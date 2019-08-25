@@ -17,6 +17,7 @@ cdef class Space:
     cdef int[:,::1] _pos
     cdef double[:,::1] _att
     cdef double[:,:,::1] _space
+    cdef object _mapping
 
     cpdef double[::1] stim_at(self, Py_ssize_t x, Py_ssize_t y)
 

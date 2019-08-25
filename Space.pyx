@@ -63,10 +63,6 @@ cdef class Space:
         gus_T: int
             The threshold within which the gustatory information is detectable
         """
-        cdef Py_ssize_t i, j
-        cdef Py_ssize_t end_orn = num_orn
-        cdef double[:,::1] olf_att, gus_att
-        cdef char method_char = b'r' if method == 'r' else b'm'
 
         assert num_stim >= 1
         self._max_pos = max_pos
@@ -75,37 +71,20 @@ cdef class Space:
         self._num_orn = num_orn
         self._num_grn = num_grn
         self._pixel_dim = num_orn + num_grn
+        self._mapping = mapping
 
         # the positions of the stimulus sources based on the method specified
         self._pos = np.zeros((num_stim, 2), dtype=np.int32) 
-        set_stim_pos(&self._pos[0, 0], num_stim, max_pos, method_char)
-
-        # the kd tree for searching the stimuli
-        self._kd = LazyKDTree(self._pos, max_pos)
-
 
         # the attributes of the stimulus sources        
         self._att = np.zeros((num_stim, self._pixel_dim), dtype=np.float64)
-        # olfactory attributes
-        olf_att = np.abs(np.random.normal(size=(num_stim, num_orn)))
-        # gustatory attributes
-        gus_att = np.zeros((num_stim, num_grn))
-        
-        # mapping(olf_att, gus_att)
-        for i in range(olf_att.shape[0]):
-            mapping(olf_att[i], gus_att[i])
 
-        # assign back
-        self._att[:, :end_orn] = olf_att
-        self._att[:, end_orn:] = gus_att
-
-
-        # build static stimulus environment
+        # the static space
         self._space = np.zeros((self._max_pos, self._max_pos, self._pixel_dim),
                                 dtype=np.float64)
-        build_space(&self._space[0, 0, 0], &self._att[0, 0], &self._pos[0, 0], 
-                    num_stim, max_pos, num_orn, self._pixel_dim, gus_T)
-    
+        
+        self.mk_space(method)
+
 
     def size(self):
         return self._num_stim
@@ -121,6 +100,45 @@ cdef class Space:
 
     def get_max_pos(self):
         return self._max_pos
+
+    def mk_space(self, method='r'):
+        """
+        To make a space based on the method given 
+        
+        Parameters
+        ----------
+        method: str
+            The method to choose the locations of stimulus sources. Default is
+            'random'. Another option can be 'matrix'.
+        """
+
+        cdef char method_char = b'r' if method == 'r' else b'm'
+        cdef double[:,::1] olf_att, gus_att
+        cdef Py_ssize_t i
+
+        # the positions of the stimulus sources based on the method specified
+        set_stim_pos(&self._pos[0, 0], self._num_stim, self._max_pos, method_char)
+
+        # the kd tree for searching the stimuli
+        self._kd = LazyKDTree(self._pos, self._max_pos)
+
+        # olfactory attributes
+        olf_att = np.abs(np.random.normal(size=(self._num_stim, self._num_orn)))
+        # gustatory attributes
+        gus_att = np.zeros((self._num_stim, self._num_grn))
+        
+        # mapping(olf_att, gus_att)
+        for i in range(olf_att.shape[0]):
+            self._mapping(olf_att[i], gus_att[i])
+
+        # assign back
+        self._att[:, :self._num_orn] = olf_att
+        self._att[:, self._num_orn:] = gus_att
+
+        # build static stimulus environment
+        build_space(&self._space[0, 0, 0], &self._att[0, 0], &self._pos[0, 0], 
+                    self._num_stim, self._max_pos, self._num_orn, 
+                    self._pixel_dim, self._gus_T)
 
 
     @cython.boundscheck(False)

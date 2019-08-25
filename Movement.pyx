@@ -19,8 +19,23 @@ cdef extern from "core.h":
 """
 
 cdef class Motor:
+    """ Super class
+    """
 
     def __init__(self, int lim, double min_step=1, double x=0, double y=0):
+        """
+        Parameters
+        ----------
+        lim : int
+            The space limit
+        min_step: double
+            The min step length the BV takes
+        x: double
+            BV's starting x cordination
+        y: double
+            BV's starting y cordination
+        """
+
         self._lim = lim
         self._min_step = min_step
         self._pos = np.array((x, y))
@@ -37,7 +52,18 @@ cdef class Motor:
     @cython.boundscheck(False)
     @cython.wraparound(False)
     @cython.initializedcheck(False)
-    cpdef bint is_at(self, int[::1] target, double th=0):
+    cpdef bint is_at(self, double[::1] target, double th=0):
+        """
+        To check if the BV is at the target position
+
+        Parameters
+        ----------
+        target: np.ndarray or Memoryview
+            The target to check
+        th: double
+            The threshold for determining if the BV is at the target position
+        """
+
         dist = sqrt((self._pos[0] - target[0])**2 + \
                     (self._pos[1] - target[1])**2)
         return dist <= th
@@ -48,7 +74,7 @@ cdef class RadMotor(Motor):
         of its direction
     """
 
-    def __init__(self, int lim, double h_rad=0, int min_step=1, double x=0, 
+    def __init__(self, int lim, double h_rad=0, double min_step=1, double x=0, 
                         double y=0):
         """
         Parameters
@@ -57,7 +83,7 @@ cdef class RadMotor(Motor):
             The space limit
         h_rad: float
             The heading direction, in radian
-        min_step: int
+        min_step: double
             The min step length the BV takes
         x: float
             BV's starting x cordination
@@ -82,6 +108,13 @@ cdef class RadMotor(Motor):
 
 
     cpdef void set_preference(self, double p):
+        """
+        Parameters
+        ----------
+        p: double
+            Preference
+        """
+
         self._prev_preference = self._preference
         self._preference = p
 
@@ -99,6 +132,8 @@ cdef class RadMotor(Motor):
     @cython.initializedcheck(False)
     cpdef double[::1] move(self, int sig_ign=0):
         """
+        To move based on (or not based on due to sig_ign) preference
+
         Parameters
         ----------
         sig_ign: int
@@ -126,6 +161,8 @@ cdef class RadMotor(Motor):
     @cython.cdivision(True)
     cpdef void heading(self, double[::1] target):
         """
+        Heading towards a target position
+        
         Parameters
         ----------
         target: np.ndarray or memoryview

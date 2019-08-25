@@ -17,7 +17,7 @@ import Movement
 import Space
 
 class Environment(QtGui.QWidget):
-    def __init__(self, sim, freq=0.01):
+    def __init__(self, sim, freq=0.01, change_space_at_step=10000):
         super().__init__()
 
         # the simulation module
@@ -39,6 +39,9 @@ class Environment(QtGui.QWidget):
 
         # Count the steps of the BV
         self.step_counter = 0
+
+        # when to change the space
+        self.time_to_change = change_space_at_step
 
         # start the simulation
         self.read_pos_thread()
@@ -161,7 +164,6 @@ class Environment(QtGui.QWidget):
     # Read in data using a thread
     def read_pos_thread(self):
         self.BV_pos = self.sim.get_BV_pos()
-        self.old_BV_pos = self.BV_pos
         self.pos_update_thread = Thread(target=self.read_pos, args=())
         self.pos_update_thread.daemon = True
         self.pos_update_thread.start()
@@ -170,15 +172,20 @@ class Environment(QtGui.QWidget):
     def read_pos(self):
         frequency = self.FREQUENCY
         while True:
-            # sim
-            if self.step_counter % 100 == 0:
+            if self.step_counter == self.time_to_change:
+                self.sim.change_space()
+                self.step_counter = 0
+                self.stims.setData(pos=self.sim.get_stim())
+
+
+            if self.step_counter % 1000 == 0:
                 self.sim.set_target()
             self.sim.step()
             self.step_counter += 1
             
+
             # update BV pos
             self.BV_pos = self.sim.get_BV_pos()
-            self.old_BV_pos = self.BV_pos
 
             # update pref
             self.pref_data = np.asarray(self.sim.get_pref())
@@ -198,7 +205,7 @@ class Environment(QtGui.QWidget):
             # update ideal taste
             self.ideal_gus = np.asarray(self.sim.get_ideal_gus())
             if np.isnan(self.ideal_gus).any():
-                print(2)
+                print(np.asarray(self.BV_pos))
 
             # update weight
             self.W = np.asarray(self.sim.get_asso_weight())
@@ -254,11 +261,11 @@ if __name__ == '__main__':
     
     m = Movement.RadMotor(200)                                              
     
-    asso = Layers.BAM(o, g, adapting_rate=1e-7, depression_rate=1e-10, enable_dep=True) 
+    asso = Layers.BAM(o, g, adapting_rate=1e-3, depression_rate=1e-10, enable_dep=True) 
     
     pfunc = np.array([0, 0, 1, 1], dtype=np.int32)
 
-    sim = Simulation.Simulation(olf, asso, gus, m, space, pfunc, mapping)
+    sim = Simulation.OnlineSim(olf, asso, gus, m, space, pfunc, mapping)
     
     # save imgs
     if not os.path.exists('img'):
