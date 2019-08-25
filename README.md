@@ -92,7 +92,7 @@ In addition, experiments were conducted using IPython and Jupyter-Notebook.
 - Another possible solution: apply genetic algorithm or other kinds to optimize the network structure
 
 ## 7. Acknowledgement
-Thank Dr. Bradly Alicea for mentoring and holding weekly meetings. Also thank Stefan Dvoretskii, Jessse Parent, and Ankit Gupta for giving suggestions.
+Thank Dr. Bradly Alicea for mentoring and holding weekly meetings. Also thank Stefan Dvoretskii, Jessse Parent, and Ankit Gupta for giving suggestions. [Link to the group github repo](https://github.com/Orthogonal-Research-Lab/GSoC-Braitenberg-Vehicles)
 
 Thanks [Google Summer of Code](https://summerofcode.withgoogle.com) and [INCF](https://www.incf.org) for opening the topic about modeling neural development, and reviewing my proposal on that topic.
 
